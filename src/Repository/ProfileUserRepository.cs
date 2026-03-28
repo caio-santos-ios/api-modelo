@@ -77,8 +77,8 @@ namespace api_infor_cell.src.Repository
         {
             try
             {
-                ProfileUser? employee = await context.ProfileUsers.Find(x => x.Id == id && !x.Deleted).FirstOrDefaultAsync();
-                return new(employee);
+                ProfileUser? profileUser = await context.ProfileUsers.Find(x => x.Id == id && !x.Deleted).FirstOrDefaultAsync();
+                return new(profileUser);
             }
             catch
             {
@@ -100,62 +100,12 @@ namespace api_infor_cell.src.Repository
                         {"id", new BsonDocument("$toString", "$_id")},
                     }),
 
-                    MongoUtil.Lookup("companies", ["$company"], ["$_id"], "_company", [["deleted", false]], 1),
-
-                    MongoUtil.Lookup("stores", ["$store"], ["$_id"], "_store", [["deleted", false]], 1),
-
-                    MongoUtil.Lookup("addresses", ["$id"], ["$parentId"], "_address", [["deleted", false]], 1),
-
-                    new("$addFields", new BsonDocument
-                    {
-                        {"addressId", MongoUtil.First("_address._id")},
-                        {"street",  MongoUtil.First("_address.street")},
-                        {"number", MongoUtil.First("_address.number") },
-                        {"complement", MongoUtil.First("_address.complement") },
-                        {"neighborhood", MongoUtil.First("_address.neighborhood") },
-                        {"city", MongoUtil.First("_address.city") },
-                        {"state", MongoUtil.First("_address.state") },
-                        {"zipCode", MongoUtil.First("_address.zipCode") },
-                        {"parent", MongoUtil.First("_address.parent") },
-                        {"parentId", MongoUtil.First("_address.parentId") },
-                        {"logoCompany", MongoUtil.First("_company.photo") },
-                        {"nameCompany", MongoUtil.First("_company.tradeName") },
-                        {"nameStore", MongoUtil.First("_store.tradeName") },
-                    }),
-
-                    new("$addFields", new BsonDocument
-                    {
-                        {"address", new BsonDocument
-                            {
-                                {"id", MongoUtil.ToString("$addressId")},
-                                {"street",  MongoUtil.ValidateNull("street", "")},
-                                {"number", MongoUtil.ValidateNull("number", "") },
-                                {"complement", MongoUtil.ValidateNull("complement", "") },
-                                {"neighborhood", MongoUtil.ValidateNull("neighborhood", "") },
-                                {"city", MongoUtil.ValidateNull("city", "") },
-                                {"state", MongoUtil.ValidateNull("state", "") },
-                                {"zipCode", MongoUtil.ValidateNull("zipCode", "") },
-                                {"parent", MongoUtil.ValidateNull("parent", "") },
-                                {"parentId", MongoUtil.ValidateNull("parentId", "") },
-                            }
-                        }
-                    }),
                     new("$project", new BsonDocument
                     {
                         {"_id", 0},
                         {"id", new BsonDocument("$toString", "$_id")},
                         {"name", 1},
-                        {"email", 1},
                         {"modules", 1},
-                        {"admin", 1},
-                        {"blocked", 1},
-                        {"photo", 1},
-                        {"phone", 1},
-                        {"whatsapp", 1},
-                        {"logoCompany", MongoUtil.ValidateNull("logoCompany", "")},
-                        {"nameCompany", MongoUtil.ValidateNull("nameCompany", "")},
-                        {"nameStore", MongoUtil.ValidateNull("nameStore", "")},
-                        {"address", 1}
                     }),
                 ];
 
@@ -234,13 +184,13 @@ namespace api_infor_cell.src.Repository
         #endregion
         
         #region CREATE
-        public async Task<ResponseApi<ProfileUser?>> CreateAsync(ProfileUser employee)
+        public async Task<ResponseApi<ProfileUser?>> CreateAsync(ProfileUser profileUser)
         {
             try
             {
-                await context.ProfileUsers.InsertOneAsync(employee);
+                await context.ProfileUsers.InsertOneAsync(profileUser);
 
-                return new(employee, 201, "Perfil de Usuário criada com sucesso");
+                return new(profileUser, 201, "Perfil de Usuário criada com sucesso");
             }
             catch
             {
@@ -250,13 +200,13 @@ namespace api_infor_cell.src.Repository
         #endregion
         
         #region UPDATE
-        public async Task<ResponseApi<ProfileUser?>> UpdateAsync(ProfileUser employee)
+        public async Task<ResponseApi<ProfileUser?>> UpdateAsync(ProfileUser profileUser)
         {
             try
             {
-                await context.ProfileUsers.ReplaceOneAsync(x => x.Id == employee.Id, employee);
+                await context.ProfileUsers.ReplaceOneAsync(x => x.Id == profileUser.Id, profileUser);
 
-                return new(employee, 201, "Perfil de Usuário atualizada com sucesso");
+                return new(profileUser, 201, "Perfil de Usuário atualizada com sucesso");
             }
             catch
             {
@@ -270,14 +220,14 @@ namespace api_infor_cell.src.Repository
         {
             try
             {
-                ProfileUser? employee = await context.ProfileUsers.Find(x => x.Id == id && !x.Deleted).FirstOrDefaultAsync();
-                if(employee is null) return new(null, 404, "Perfil de Usuário não encontrado");
-                employee.Deleted = true;
-                employee.DeletedAt = DateTime.UtcNow;
+                ProfileUser? profileUser = await context.ProfileUsers.Find(x => x.Id == id && !x.Deleted).FirstOrDefaultAsync();
+                if(profileUser is null) return new(null, 404, "Perfil de Usuário não encontrado");
+                profileUser.Deleted = true;
+                profileUser.DeletedAt = DateTime.UtcNow;
 
-                await context.ProfileUsers.ReplaceOneAsync(x => x.Id == id, employee);
+                await context.ProfileUsers.ReplaceOneAsync(x => x.Id == id, profileUser);
 
-                return new(employee, 204, "Perfil de Usuário excluída com sucesso");
+                return new(profileUser, 204, "Perfil de Usuário excluída com sucesso");
             }
             catch
             {

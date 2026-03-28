@@ -102,56 +102,6 @@ namespace api_infor_cell.src.Repository
                         {"id", new BsonDocument("$toString", "$_id")},
                     }),
 
-                    MongoUtil.Lookup("companies", ["$company"], ["$_id"], "_company", [["deleted", false]], 1),
-
-                    MongoUtil.Lookup("companies", ["$plan"], ["$plan"], "_companyAll", [["deleted", false]]),
-                    
-                    MongoUtil.Lookup("stores", ["$store"], ["$_id"], "_store", [["deleted", false]], 1),
-                    
-                    MongoUtil.Lookup("stores", ["$plan"], ["$plan"], "_storeAll", [["deleted", false]]),
-
-                    MongoUtil.Lookup("addresses", ["$id"], ["$parentId"], "_address", [["deleted", false]], 1),
-
-                    MongoUtil.Lookup("plans", ["$plan"], ["$_id"], "_plan", [["deleted", false]], 1),
-                    
-                    MongoUtil.Lookup("subscriptions", ["$plan"], ["$planId"], "_subscriptions", [["deleted", false]], 1),
-
-                    new("$addFields", new BsonDocument
-                    {
-                        {"addressId", MongoUtil.First("_address._id")},
-                        {"street",  MongoUtil.First("_address.street")},
-                        {"number", MongoUtil.First("_address.number") },
-                        {"complement", MongoUtil.First("_address.complement") },
-                        {"neighborhood", MongoUtil.First("_address.neighborhood") },
-                        {"city", MongoUtil.First("_address.city") },
-                        {"state", MongoUtil.First("_address.state") },
-                        {"zipCode", MongoUtil.First("_address.zipCode") },
-                        {"parent", MongoUtil.First("_address.parent") },
-                        {"parentId", MongoUtil.First("_address.parentId") },
-                        {"logoCompany", MongoUtil.First("_company.photo") },
-                        {"nameCompany", MongoUtil.First("_company.tradeName") },
-                        {"nameStore", MongoUtil.First("_store.tradeName") },
-                        {"namePlan", MongoUtil.First("_plan.type") },
-                        {"subscriberPlan", MongoUtil.First("_subscriptions.active") },
-                    }),
-
-                    new("$addFields", new BsonDocument
-                    {
-                        {"address", new BsonDocument
-                            {
-                                {"id", MongoUtil.ToString("$addressId")},
-                                {"street",  MongoUtil.ValidateNull("street", "")},
-                                {"number", MongoUtil.ValidateNull("number", "") },
-                                {"complement", MongoUtil.ValidateNull("complement", "") },
-                                {"neighborhood", MongoUtil.ValidateNull("neighborhood", "") },
-                                {"city", MongoUtil.ValidateNull("city", "") },
-                                {"state", MongoUtil.ValidateNull("state", "") },
-                                {"zipCode", MongoUtil.ValidateNull("zipCode", "") },
-                                {"parent", MongoUtil.ValidateNull("parent", "") },
-                                {"parentId", MongoUtil.ValidateNull("parentId", "") },
-                            }
-                        }
-                    }),
                     new("$project", new BsonDocument
                     {
                         {"_id", 0},
@@ -162,19 +112,7 @@ namespace api_infor_cell.src.Repository
                         {"admin", 1},
                         {"blocked", 1},
                         {"photo", 1},
-                        {"phone", 1},
-                        {"whatsapp", 1},
-                        {"stores", 1},
-                        {"companies", 1},
-                        {"createdAt", 1},
-                        {"logoCompany", MongoUtil.ValidateNull("logoCompany", "")},
-                        {"nameCompany", MongoUtil.ValidateNull("nameCompany", "")},
-                        {"namePlan", MongoUtil.ValidateNull("namePlan", "")},
-                        {"subscriberPlan", MongoUtil.ValidateNull("subscriberPlan", "")},
-                        {"nameStore", MongoUtil.ValidateNull("nameStore", "")},
-                        {"address", 1},
-                        {"storesAll", "$_storeAll"},
-                        {"companiesAll", "$_companyAll"},
+                        {"createdAt", 1}
                     }),
                 ];
 

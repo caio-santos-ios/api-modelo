@@ -223,7 +223,7 @@ namespace api_infor_cell.src.Repository
         {
             try
             {
-                long code = await context.ProfileUsers.Find(x => x.Plan == planId && x.Company == companyId && x.Store == storeId).CountDocumentsAsync() + 1;
+                long code = await context.ProfileUsers.Find(x => true).CountDocumentsAsync() + 1;
                 return new(code);
             }
             catch

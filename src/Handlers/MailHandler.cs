@@ -23,9 +23,8 @@ namespace api_infor_cell.src.Handlers
 
                 using SmtpClient smtp = new();
                 
-                // SMTP do Resend — Railway não bloqueia (é HTTPS por baixo)
                 await smtp.ConnectAsync("smtp.resend.com", 465, SecureSocketOptions.SslOnConnect);
-                await smtp.AuthenticateAsync("resend", ResendApiKey); // usuário é literal "resend"
+                await smtp.AuthenticateAsync("resend", ResendApiKey);
                 await smtp.SendAsync(mensagem);
                 await smtp.DisconnectAsync(true);
             }

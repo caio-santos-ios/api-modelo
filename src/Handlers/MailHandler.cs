@@ -33,7 +33,7 @@ namespace api_infor_cell.src.Handlers
             {
                 await loggerService.CreateAsync(new () 
                 {
-                    Method = "SendMailAsync",
+                    Method = "SEND_MAIL",
                     Message = $"Failed to send email: {ex.Message}",
                     StatusCode = 500
                 });

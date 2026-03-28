@@ -1,36 +1,46 @@
 using api_infor_cell.src.Interfaces;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using MimeKit;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace api_infor_cell.src.Handlers
 {
     public class MailHandler(ILoggerService loggerService)
     {
         private readonly string EmailFrom = Environment.GetEnvironmentVariable("EMAIL_FROM") ?? "";
-        private readonly string Password = Environment.GetEnvironmentVariable("PASSWORD_EMAIL") ?? "";
         private readonly string ResendApiKey = Environment.GetEnvironmentVariable("RESEND_API_KEY") ?? "";
 
         public async Task SendMailAsync(string recipient, string subject, string body)
         {
             try
             {
-                MimeMessage mensagem = new();
-                mensagem.From.Add(MailboxAddress.Parse(EmailFrom));
-                mensagem.To.Add(MailboxAddress.Parse(recipient));
-                mensagem.Subject = subject;
-                mensagem.Body = new TextPart("html") { Text = body };
+                using HttpClient httpClient = new();
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", ResendApiKey);
 
-                using SmtpClient smtp = new();
-                
-                await smtp.ConnectAsync("smtp.resend.com", 465, SecureSocketOptions.SslOnConnect);
-                await smtp.AuthenticateAsync("resend", ResendApiKey);
-                await smtp.SendAsync(mensagem);
-                await smtp.DisconnectAsync(true);
+                var payload = new
+                {
+                    from = EmailFrom,
+                    to = new[] { recipient },
+                    subject = subject,
+                    html = body
+                };
+
+                var content = new StringContent(
+                    JsonSerializer.Serialize(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await httpClient.PostAsync("https://api.resend.com/emails", content);
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Resend error: {responseBody}");
             }
             catch (Exception ex)
             {
-                await loggerService.CreateAsync(new () 
+                await loggerService.CreateAsync(new()
                 {
                     Method = "SEND_MAIL",
                     Message = $"Failed to send email: {ex.Message}",
@@ -38,6 +48,6 @@ namespace api_infor_cell.src.Handlers
                 });
                 throw;
             }
-        } 
+        }
     }
 }

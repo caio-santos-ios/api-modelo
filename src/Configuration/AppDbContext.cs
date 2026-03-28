@@ -36,6 +36,10 @@ namespace api_infor_cell.src.Configuration
         public IMongoCollection<User> Users => Database.GetCollection<User>("users");
         public IMongoCollection<ProfileUser> ProfileUsers => Database.GetCollection<ProfileUser>("profile_users");
         #endregion
+
+        #region SETTINGS
+        public IMongoCollection<Logger> Loggers => Database.GetCollection<Logger>("loggers");
+        #endregion
     }
 }
 

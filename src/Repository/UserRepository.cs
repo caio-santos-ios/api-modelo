@@ -223,18 +223,6 @@ namespace api_infor_cell.src.Repository
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
-        public async Task<ResponseApi<User?>> GetByPhoneAsync(string phone)
-        {
-            try
-            {
-                // User? user = await context.Users.Find(x => x.Phone == phone && !x.Deleted).FirstOrDefaultAsync();
-                return new();
-            }
-            catch
-            {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
-            }
-        }
         public async Task<ResponseApi<User?>> GetByCodeAccessAsync(string codeAccess)
         {
             try

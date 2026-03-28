@@ -148,7 +148,7 @@ namespace api_infor_cell.src.Services
             try
             {
                 ResponseApi<User?> user = await userRepository.GetByIdAsync(request.Id);
-                Util.ConsoleLog(Validator.IsEmail(request.Email));
+                
                 if(user.Data is null || !Validator.IsEmail(request.Email)) return new(null, 404, "Falha ao atualizar");
                 
                 user.Data.UpdatedAt = DateTime.UtcNow;
@@ -235,14 +235,6 @@ namespace api_infor_cell.src.Services
                     if(isEmail.Data is null && !Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");                    
                     user = isEmail.Data;
                     await mailHandler.SendMailAsync(request.Email, "Código de verificação", messageCode);
-                };
-
-                if (!string.IsNullOrEmpty(request.Phone))
-                {
-                    ResponseApi<User?> isPhone = await userRepository.GetByPhoneAsync(request.Phone);
-                    if(isPhone.Data is null) return new(null, 400, "Celular inválido.");
-                    user = isPhone.Data;
-                    await smsHandler.SendMessageAsync(request.Phone, messageCode);
                 };
                 
                 if(user is null) return new(null, 400, "Falha ao reenviar código de acesso");

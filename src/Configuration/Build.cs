@@ -69,6 +69,10 @@ namespace api_infor_cell.src.Configuration
 
             builder.Services.AddTransient<IProfileUserService, ProfileUserService>();
             builder.Services.AddTransient<IProfileUserRepository, ProfileUserRepository>();  
+
+            // SETTINGS
+            builder.Services.AddTransient<ILoggerService, LoggerService>();
+            builder.Services.AddTransient<ILoggerRepository, LoggerRepository>();
             
             // DASHBOARD
             // builder.Services.AddTransient<IDashboardService, DashboardService>();

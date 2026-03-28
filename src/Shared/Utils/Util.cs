@@ -16,5 +16,28 @@ namespace api_infor_cell.src.Shared.Utils
                 CodeAccessExpiration = DateTime.UtcNow.AddMinutes(minutesExpiration)
             };
         }
+
+        public static string NormalizeMessageLogger(int statusCode, string message)
+        {
+            string responseMessage;
+
+            if(statusCode > 204)
+            {
+                if(message.Contains("Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. "))
+                {
+                    responseMessage = message.Split("Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. ")[1];
+                }
+                else
+                {
+                    responseMessage = message;
+                }
+            }
+            else
+            {
+                responseMessage = message;
+            }
+
+            return responseMessage;
+        }
     }
 }

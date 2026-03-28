@@ -16,8 +16,11 @@ namespace api_infor_cell.src.Configuration
             CreateMap<CreateProfileUserDTO, ProfileUser>().ReverseMap();
             CreateMap<UpdateProfileUserDTO, ProfileUser>().ReverseMap();
             #endregion
+            
+            #region SETTINGS
+            CreateMap<CreateLoggerDTO, Logger>().ReverseMap();
+            CreateMap<UpdateLoggerDTO, Logger>().ReverseMap();
+            #endregion
         }
     }
-
-    
 }

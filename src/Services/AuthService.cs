@@ -59,9 +59,9 @@ namespace api_infor_cell.src.Services
 
                 return new(response);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
             }
         }
 
@@ -106,7 +106,6 @@ namespace api_infor_cell.src.Services
             }
             catch(Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
             }
         }
@@ -131,9 +130,9 @@ namespace api_infor_cell.src.Services
                 
                 return new(null, 200, "Conta verificada com sucesso.");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
             }
         }
 
@@ -158,9 +157,9 @@ namespace api_infor_cell.src.Services
 
                 return new(null, 200, "Novo código foi enviado.");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
             }
         }
 
@@ -208,9 +207,9 @@ namespace api_infor_cell.src.Services
                     RefreshToken = refreshToken
                 });
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
             }
         }
 
@@ -238,9 +237,9 @@ namespace api_infor_cell.src.Services
 
                 return new(null, 200, "Senha alterada com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
             }
         }
 
@@ -265,9 +264,9 @@ namespace api_infor_cell.src.Services
 
                 return new(null, 200, "Foi enviado um e-mail para redefinir sua senha");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
             }
         }
 
@@ -296,9 +295,9 @@ namespace api_infor_cell.src.Services
                 
                 return new(null, 200, "Senha alterada com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
             }
         }
 

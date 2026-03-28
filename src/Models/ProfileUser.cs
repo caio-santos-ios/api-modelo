@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace api_infor_cell.src.Models
 {
-    public class ProfileUser : ModelMasterBase
+    public class ProfileUser : ModelBase
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

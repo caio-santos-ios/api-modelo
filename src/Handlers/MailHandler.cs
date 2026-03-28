@@ -1,5 +1,6 @@
 using api_infor_cell.src.Interfaces;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 
 namespace api_infor_cell.src.Handlers
@@ -8,6 +9,7 @@ namespace api_infor_cell.src.Handlers
     {
         private readonly string EmailFrom = Environment.GetEnvironmentVariable("EMAIL_FROM") ?? "";
         private readonly string Password = Environment.GetEnvironmentVariable("PASSWORD_EMAIL") ?? "";
+        private readonly string ResendApiKey = Environment.GetEnvironmentVariable("RESEND_API_KEY") ?? "";
 
         public async Task SendMailAsync(string recipient, string subject, string body)
         {
@@ -17,15 +19,13 @@ namespace api_infor_cell.src.Handlers
                 mensagem.From.Add(MailboxAddress.Parse(EmailFrom));
                 mensagem.To.Add(MailboxAddress.Parse(recipient));
                 mensagem.Subject = subject;
-
-                mensagem.Body = new TextPart("html")
-                {
-                    Text = body
-                };
+                mensagem.Body = new TextPart("html") { Text = body };
 
                 using SmtpClient smtp = new();
-                await smtp.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                await smtp.AuthenticateAsync(EmailFrom, Password);
+                
+                // SMTP do Resend — Railway não bloqueia (é HTTPS por baixo)
+                await smtp.ConnectAsync("smtp.resend.com", 465, SecureSocketOptions.SslOnConnect);
+                await smtp.AuthenticateAsync("resend", ResendApiKey); // usuário é literal "resend"
                 await smtp.SendAsync(mensagem);
                 await smtp.DisconnectAsync(true);
             }

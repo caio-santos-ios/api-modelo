@@ -23,12 +23,6 @@ namespace api_infor_cell.src.Models
         [BsonElement("password")]
         public string Password {get;set;} = string.Empty;
 
-        [BsonElement("phone")]
-        public string Phone {get;set;} = string.Empty;
-        
-        [BsonElement("whatsapp")]
-        public string Whatsapp {get;set;} = string.Empty;
-
         [BsonElement("role")]
         [BsonRepresentation(BsonType.String)] 
         public RoleEnum Role {get;set;} = RoleEnum.User;
@@ -56,6 +50,10 @@ namespace api_infor_cell.src.Models
         
         [BsonElement("modules")]
         public List<Module> Modules {get;set;} = [];
+        
+        [BsonElement("profileUserId")]
+        public string ProfileUserId {get;set;} = string.Empty;
+        
     }
 
     public class Module 

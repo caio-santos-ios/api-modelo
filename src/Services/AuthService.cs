@@ -69,10 +69,10 @@ namespace api_infor_cell.src.Services
         {
             try
             {
-                if (!request.PrivacyPolicy) return new(null, 400, "Aceitar os Termos e Condições e nossa Política de Privacidade é obrigatório");
                 if (string.IsNullOrEmpty(request.Name)) return new(null, 400, "Nome é obrigatório");
                 if (string.IsNullOrEmpty(request.Email)) return new(null, 400, "E-mail é obrigatório");
                 if (string.IsNullOrEmpty(request.Password)) return new(null, 400, "Senha é obrigatória");
+                if (!request.PrivacyPolicy) return new(null, 400, "Aceitar os Termos e Condições e nossa Política de Privacidade é obrigatório");
                 
                 ResponseApi<User?> isEmail = await userRepository.GetByEmailAsync(request.Email);
                 if(isEmail.Data is not null || !Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");
@@ -85,17 +85,15 @@ namespace api_infor_cell.src.Services
                 {
                     UserName = $"usuário{access.CodeAccess}",
                     Email = request.Email,
-                    Phone = request.Phone,
                     Name = request.Name,
                     Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                     CodeAccess = access.CodeAccess,
                     CodeAccessExpiration = access.CodeAccessExpiration,
                     ValidatedAccess = false,
                     Modules = [],
-                    Admin = false,
+                    Admin = true,
                     Master = false,
                     Blocked = false,
-                    Whatsapp = request.Whatsapp,
                     Role = Enums.User.RoleEnum.User
                 };
 
@@ -106,9 +104,10 @@ namespace api_infor_cell.src.Services
 
                 return new(null, 201, "Conta criada com sucesso, foi enviado o e-mail de confirmação.");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");            
+                System.Console.WriteLine(ex.Message);
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
             }
         }
 

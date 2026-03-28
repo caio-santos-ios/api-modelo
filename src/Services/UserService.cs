@@ -56,7 +56,6 @@ namespace api_infor_cell.src.Services
                 {
                     UserName = $"usuário{access.CodeAccess}",
                     Email = request.Email,
-                    Phone = request.Phone,
                     Name = request.Name,
                     Password = BCrypt.Net.BCrypt.HashPassword(access.CodeAccess),
                     CodeAccess = "",
@@ -155,9 +154,7 @@ namespace api_infor_cell.src.Services
                 user.Data.UpdatedAt = DateTime.UtcNow;
                 user.Data.UserName = request.UserName;
                 user.Data.Email = request.Email;
-                user.Data.Phone = request.Phone;
                 user.Data.Name = request.Name;
-                user.Data.Whatsapp = request.Whatsapp;
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
                 if(!response.IsSuccess) return new(null, 400, "Falha ao atualizar");

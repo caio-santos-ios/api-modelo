@@ -3,7 +3,6 @@ using api_infor_cell.src.Handlers;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Repository;
 using api_infor_cell.src.Services;
-using api_infor_cell.src.Shared.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -67,6 +66,9 @@ namespace api_infor_cell.src.Configuration
             // MASTER DATA
             builder.Services.AddTransient<IUserService, UserService>();
             builder.Services.AddTransient<IUserRepository, UserRepository>();  
+
+            builder.Services.AddTransient<IProfileUserService, ProfileUserService>();
+            builder.Services.AddTransient<IProfileUserRepository, ProfileUserRepository>();  
             
             // DASHBOARD
             // builder.Services.AddTransient<IDashboardService, DashboardService>();
@@ -77,7 +79,7 @@ namespace api_infor_cell.src.Configuration
             builder.Services.AddTransient<MailHandler>();
             builder.Services.AddTransient<UploadHandler>();
 
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
         }
     }
 }

@@ -227,8 +227,8 @@ namespace api_infor_cell.src.Repository
         {
             try
             {
-                User? user = await context.Users.Find(x => x.Phone == phone && !x.Deleted).FirstOrDefaultAsync();
-                return new(user);
+                // User? user = await context.Users.Find(x => x.Phone == phone && !x.Deleted).FirstOrDefaultAsync();
+                return new();
             }
             catch
             {

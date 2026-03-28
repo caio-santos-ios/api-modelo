@@ -34,6 +34,7 @@ namespace api_infor_cell.src.Configuration
 
         #region MASTER DATA
         public IMongoCollection<User> Users => Database.GetCollection<User>("users");
+        public IMongoCollection<ProfileUser> ProfileUsers => Database.GetCollection<ProfileUser>("profile_users");
         #endregion
     }
 }

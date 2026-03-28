@@ -10,6 +10,9 @@ namespace api_infor_cell.src.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = string.Empty;
         
+        [BsonElement("path")]
+        public string Path {get;set;} = string.Empty;
+        
         [BsonElement("method")]
         public string Method {get;set;} = string.Empty;
         

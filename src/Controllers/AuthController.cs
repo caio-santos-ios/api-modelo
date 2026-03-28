@@ -21,6 +21,7 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<AuthResponse> response = await service.LoginAsync(body);
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
+                Path = "/api/auth/login",
                 Method = "POST",
                 Message = response.Message ?? "",
                 StatusCode = response.StatusCode
@@ -37,6 +38,7 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<dynamic> response = await service.RegisterAsync(body);
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
+                Path = "/api/auth/register",
                 Method = "POST",
                 Message = response.Message ?? "",
                 StatusCode = response.StatusCode
@@ -53,6 +55,7 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<dynamic> response = await service.ConfirmAccountAsync(body);
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
+                Path = "/api/auth/confirm-account",
                 Method = "POST",
                 Message = response.Message ?? "",
                 StatusCode = response.StatusCode
@@ -69,28 +72,7 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<dynamic> response = await service.NewCodeConfirmAsync(body);
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
-                Method = "POST",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
-            return StatusCode(response.StatusCode, new { response.Result });
-        }
-        
-        [HttpPost]
-        [Route("refresh-token")]
-        public async Task<IActionResult> RefreshTokenAsync()
-        {
-            var authHeader = Request.Headers.Authorization.ToString();
-            string token = string.Empty;
-
-            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
-            {
-                token = authHeader.Substring("Bearer ".Length).Trim();
-            }
-            string? plan = User.FindFirst("plan")?.Value;
-            ResponseApi<AuthResponse> response = await service.RefreshTokenAsync(token, plan!);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
+                Path = "/api/auth/new-code-confirm",
                 Method = "POST",
                 Message = response.Message ?? "",
                 StatusCode = response.StatusCode
@@ -108,6 +90,7 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<User> response = await service.ResetPasswordAsync(request);
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
+                Path = "/api/auth/reset-password",
                 Method = "PUT",
                 Message = response.Message ?? "",
                 StatusCode = response.StatusCode
@@ -122,6 +105,13 @@ namespace api_infor_cell.src.Controllers
             if (request == null) return BadRequest("Dados inválidos");
 
             ResponseApi<User> response = await service.RequestForgotPasswordAsync(request);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/auth/request-forgot-password",
+                Method = "PUT",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
 
@@ -134,6 +124,7 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<User> response = await service.ResetPassordForgotAsync(request);
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
+                Path = "/api/auth/reset-forgot-password",
                 Method = "PUT",
                 Message = response.Message ?? "",
                 StatusCode = response.StatusCode

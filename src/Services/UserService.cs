@@ -132,7 +132,6 @@ namespace api_infor_cell.src.Services
                 }
 
                 user.Data.UpdatedAt = DateTime.UtcNow;
-                user.Data.UserName = request.UserName;
                 user.Data.Email = request.Email;
                 user.Data.Name = request.Name;
 

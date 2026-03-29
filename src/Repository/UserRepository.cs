@@ -76,6 +76,7 @@ namespace api_infor_cell.src.Repository
                     new("$project", new BsonDocument
                     {
                         {"_id", 0},
+                        {"password", 0},
                     }),
                 ];
 

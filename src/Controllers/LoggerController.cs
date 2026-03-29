@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
@@ -50,10 +51,11 @@ namespace api_infor_cell.src.Controllers
         }
 
         [Authorize]
-        [HttpDelete]
-        public async Task<IActionResult> Delete([FromBody] DeleteDTO body)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
         {
-            ResponseApi<Logger> response = await service.DeleteAsync(body);
+            string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ResponseApi<Logger> response = await service.DeleteAsync(new () { Id = id, DeletedBy = userId! });
 
             return StatusCode(response.StatusCode, new { response.Result });
         }

@@ -31,6 +31,7 @@ namespace api_infor_cell.src.Repository
                         {"method", 1},
                         {"message", 1},
                         {"statusCode", 1},
+                        {"audit", 1},
                         {"createdAt", 1},
                     }),
                     new("$sort", pagination.PipelineSort),

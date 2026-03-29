@@ -82,6 +82,7 @@ namespace api_infor_cell.src.Configuration
             builder.Services.AddTransient<SmsHandler>();
             builder.Services.AddTransient<MailHandler>();
             builder.Services.AddTransient<UploadHandler>();
+            builder.Services.AddTransient<CountHandler>();
 
             builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
         }

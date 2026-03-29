@@ -1,5 +1,6 @@
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
+using api_infor_cell.src.Shared.DTOs;
 using api_infor_cell.src.Shared.Utils;
 
 namespace api_infor_cell.src.Interfaces
@@ -19,6 +20,6 @@ namespace api_infor_cell.src.Interfaces
         Task<ResponseApi<User?>> UpdateCodeAccessAsync(string userId, string codeAccess);
         Task<ResponseApi<User?>> UpdateAsync(User request);
         Task<ResponseApi<User?>> ValidatedAccessAsync(string codeAccess);
-        Task<ResponseApi<User>> DeleteAsync(string id);
+        Task<ResponseApi<User>> DeleteAsync(DeleteDTO request);
     }
 }

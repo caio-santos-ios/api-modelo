@@ -3,86 +3,13 @@ using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
 using api_infor_cell.src.Shared.DTOs;
-using api_infor_cell.src.Shared.Templates;
 using api_infor_cell.src.Shared.Utils;
 using api_infor_cell.src.Shared.Validators;
 
 namespace api_infor_cell.src.Services
 {
-    public class UserService(IUserRepository userRepository, SmsHandler smsHandler, MailHandler mailHandler, UploadHandler uploadHander) : IUserService
+    public class UserService(IUserRepository userRepository, IProfileUserRepository profileUserRepository, MailHandler mailHandler, UploadHandler uploadHander) : IUserService
     {
-        #region CREATE
-        public async Task<ResponseApi<User?>> CreateAsync(CreateUserDTO request)
-        {
-            try
-            {
-                ResponseApi<User?> isEmail = await userRepository.GetByEmailAsync(request.Email);
-                if(isEmail.Data is not null || !Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");
-
-                if(Validator.IsReliable(request.Password).Equals("Ruim")) return new(null, 400, $"Senha é muito fraca");
-
-                dynamic access = Util.GenerateCodeAccess();
-
-                List<api_infor_cell.src.Models.Module> modules = [];
-                foreach (var module in request.Modules)
-                {
-                    List<api_infor_cell.src.Models.Routine> routines = [];
-
-                    foreach (var routine in module.Routines)
-                    {
-                        routines.Add(new () 
-                        {
-                            Code = routine.Code,
-                            Description = routine.Description,
-                            Permissions = new ()
-                            {
-                                Create = routine.Permissions.Create,
-                                Read = routine.Permissions.Read,
-                                Update = routine.Permissions.Update,
-                                Delete = routine.Permissions.Delete
-                            }
-                        });
-                    }
-                    
-                    modules.Add(new () 
-                    {
-                        Code = module.Code,
-                        Description = module.Description,
-                        Routines = routines
-                    });
-                };
-
-                User user = new()
-                {
-                    UserName = $"usuário{access.CodeAccess}",
-                    Email = request.Email,
-                    Name = request.Name,
-                    Password = BCrypt.Net.BCrypt.HashPassword(access.CodeAccess),
-                    CodeAccess = "",
-                    CodeAccessExpiration = null,
-                    ValidatedAccess = true,
-                    Modules = modules,
-                    Admin = request.Admin,
-                    Blocked = request.Blocked
-                };
-
-                ResponseApi<User?> response = await userRepository.CreateAsync(user);
-                if(response.Data is null) return new(null, 400, "Falha ao criar conta.");
-                
-                string messageCode = $"Seu código de verificação é: {access.CodeAccess}";
-                
-                await smsHandler.SendMessageAsync(request.Phone, messageCode);
-                
-                return new(null, 201, "Conta criada com sucesso, foi enviado o código de verificação para seu celular e e-mail.");
-            }
-            catch
-            {                
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde");
-            }
-        }
-        
-        #endregion
-        
         #region READ
         public async Task<PaginationApi<List<dynamic>>> GetAllAsync(GetAllDTO request, string userId)
         {
@@ -93,9 +20,9 @@ namespace api_infor_cell.src.Services
                 int count = await userRepository.GetCountDocumentsAsync(pagination);
                 return new(users.Data, count, pagination.PageNumber, pagination.PageSize);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         
@@ -105,11 +32,11 @@ namespace api_infor_cell.src.Services
             {
                 ResponseApi<dynamic?> user = await userRepository.GetByIdAggregateAsync(id);
                 if(user.Data is null) return new(null, 404, "Usuário não encontrado");
-                return new(user.Data);
+                return new(user.Data, 200, "Usuário encontrado");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         
@@ -119,11 +46,51 @@ namespace api_infor_cell.src.Services
             {
                 ResponseApi<dynamic?> user = await userRepository.GetLoggedAsync(id);
                 if(user.Data is null) return new(null, 404, "Usuário não encontrado");
-                return new(user.Data);
+                return new(user.Data, 200, "Usuário encontrado");
+            }
+            catch(Exception ex)
+            {
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
+            }
+        }
+        
+        #endregion
+        
+        #region CREATE
+        public async Task<ResponseApi<User?>> CreateAsync(CreateUserDTO request)
+        {
+            try
+            {
+                ResponseApi<User?> isEmail = await userRepository.GetByEmailAsync(request.Email);
+                if(isEmail.Data is not null || !Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");
+
+                ResponseApi<ProfileUser?> profile = await profileUserRepository.GetByIdAsync(request.ProfileUserId);
+
+                dynamic access = Util.GenerateCodeAccess();
+
+                User user = new()
+                {
+                    UserName = $"usuário{access.CodeAccess}",
+                    Email = request.Email,
+                    Name = request.Name,
+                    Password = BCrypt.Net.BCrypt.HashPassword(access.CodeAccess),
+                    CodeAccess = "",
+                    CodeAccessExpiration = null,
+                    ValidatedAccess = true,
+                    Modules = profile.Data?.Modules ?? [],
+                    Admin = request.Admin,
+                    Blocked = request.Blocked,
+                    ProfileUserId = request.ProfileUserId
+                };
+
+                ResponseApi<User?> response = await userRepository.CreateAsync(user);
+                if(response.Data is null) return new(null, 400, "Falha ao criar conta.");
+                
+                return new(null, 201, "Usuário criado com sucesso.");
             }
             catch
-            {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+            {                
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde");
             }
         }
         
@@ -136,11 +103,11 @@ namespace api_infor_cell.src.Services
             {
                 ResponseApi<User?> user = await userRepository.ValidatedAccessAsync(codeAccess);
                 if(!user.IsSuccess) return new(null, 400, "Código inválido");
-                return new(user.Data, 201, "Código de acesso confirmado");
+                return new(user.Data, 200, "Código de acesso confirmado");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         public async Task<ResponseApi<User?>> UpdateAsync(UpdateUserDTO request)
@@ -150,7 +117,15 @@ namespace api_infor_cell.src.Services
                 ResponseApi<User?> user = await userRepository.GetByIdAsync(request.Id);
                 
                 if(user.Data is null || !Validator.IsEmail(request.Email)) return new(null, 404, "Falha ao atualizar");
-                
+
+                if(request.ProfileUserId != user.Data.ProfileUserId)
+                {
+                    ResponseApi<ProfileUser?> newProfile = await profileUserRepository.GetByIdAsync(request.ProfileUserId);
+                    if(newProfile.Data is null) return new(null, 404, "Perfil de usuário não encontrado");
+                    user.Data.Modules = newProfile.Data.Modules;
+                    user.Data.ProfileUserId = request.ProfileUserId;
+                }
+
                 user.Data.UpdatedAt = DateTime.UtcNow;
                 user.Data.UserName = request.UserName;
                 user.Data.Email = request.Email;
@@ -158,63 +133,12 @@ namespace api_infor_cell.src.Services
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
                 if(!response.IsSuccess) return new(null, 400, "Falha ao atualizar");
-                return new(response.Data, 201, "Atualizado com sucesso");
-            }
-            catch
-            {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
-            }
-        }
-        public async Task<ResponseApi<User?>> UpdateModuleAsync(UpdateUserModuleDTO request)
-        {
-            try
-            {
-                ResponseApi<User?> user = await userRepository.GetByIdAsync(request.Id);
-                if(user.Data is null) return new(null, 404, "Falha ao atualizar");
-                
-                user.Data.UpdatedAt = DateTime.UtcNow;
-                List<api_infor_cell.src.Models.Module> modules = [];
-                foreach (var module in request.Modules)
-                {
-                    List<api_infor_cell.src.Models.Routine> routines = [];
 
-                    foreach (var routine in module.Routines)
-                    {
-                        routines.Add(new () 
-                        {
-                            Code = routine.Code,
-                            Description = routine.Description,
-                            Permissions = new ()
-                            {
-                                Create = routine.Permissions.Create,
-                                Read = routine.Permissions.Read,
-                                Update = routine.Permissions.Update,
-                                Delete = routine.Permissions.Delete
-                            }
-                        });
-                    }
-                    
-                    modules.Add(new () 
-                    {
-                        Code = module.Code,
-                        Description = module.Description,
-                        Routines = routines
-                    });
-                };
-
-                user.Data.Modules = modules;
-                user.Data.Name = request.Name;
-                user.Data.Email = request.Email;
-                user.Data.Blocked = request.Blocked;
-                user.Data.Admin = request.Admin;
-
-                ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
-                if(!response.IsSuccess) return new(null, 400, "Falha ao atualizar");
-                return new(response.Data, 201, "Atualizado com sucesso");
+                return new(response.Data, 200, "Atualizado com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         
@@ -246,11 +170,11 @@ namespace api_infor_cell.src.Services
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user);
                 if(!response.IsSuccess) return new(null, 400, "Falha ao reenviar código de acesso");
-                return new(response.Data, 201, "Novo código de acesso enviado");
+                return new(response.Data, 200, "Novo código de acesso enviado");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         public async Task<ResponseApi<User?>> SavePhotoProfileAsync(SaveUserPhotoDTO request)
@@ -275,11 +199,11 @@ namespace api_infor_cell.src.Services
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
                 if(!response.IsSuccess) return new(null, 400, "Falha ao salvar foto de perfil");
-                return new(new () { Photo = response.Data!.Photo }, 201, "Foto de perfil salva com sucesso");
+                return new(new () { Photo = response.Data!.Photo }, 200, "Foto de perfil salva com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         public async Task<ResponseApi<User?>> RemovePhotoProfileAsync(string id)
@@ -296,27 +220,27 @@ namespace api_infor_cell.src.Services
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
                 if(!response.IsSuccess) return new(null, 400, "Falha ao remover foto de perfil");
-                return new(response.Data, 201, "Foto de perfil removida com sucesso");
+                return new(response.Data, 200, "Foto de perfil removida com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion
         
         #region DELETE
-        public async Task<ResponseApi<User>> DeleteAsync(string userId)
+        public async Task<ResponseApi<User>> DeleteAsync(DeleteDTO request)
         {
             try
             {
-                ResponseApi<User> user = await userRepository.DeleteAsync(userId);
+                ResponseApi<User> user = await userRepository.DeleteAsync(request);
                 if(!user.IsSuccess) return new(null, 400, user.Message);
-                return user;
+                return new(user.Data, 204, "Usuário excluído com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion        

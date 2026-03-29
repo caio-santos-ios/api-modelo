@@ -112,11 +112,11 @@ namespace api_infor_cell.src.Services
         #endregion
         
         #region DELETE
-        public async Task<ResponseApi<ProfileUser>> DeleteAsync(string id)
+        public async Task<ResponseApi<ProfileUser>> DeleteAsync(DeleteDTO request)
         {
             try
             {
-                ResponseApi<ProfileUser> profileUser = await repository.DeleteAsync(id);
+                ResponseApi<ProfileUser> profileUser = await repository.DeleteAsync(request);
                 if(!profileUser.IsSuccess) return new(null, 400, profileUser.Message);
                 return new(null, 204, "Excluída com sucesso");
             }

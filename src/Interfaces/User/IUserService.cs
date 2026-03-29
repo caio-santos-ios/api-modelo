@@ -11,11 +11,10 @@ namespace api_infor_cell.src.Interfaces
         Task<ResponseApi<dynamic?>> GetLoggedAsync(string id);
         Task<ResponseApi<User?>> CreateAsync(CreateUserDTO user);
         Task<ResponseApi<User?>> UpdateAsync(UpdateUserDTO user);
-        Task<ResponseApi<User?>> UpdateModuleAsync(UpdateUserModuleDTO user);
         Task<ResponseApi<User?>> SavePhotoProfileAsync(SaveUserPhotoDTO user);
         Task<ResponseApi<User?>> ResendCodeAccessAsync(UpdateUserDTO user);
         Task<ResponseApi<User?>> RemovePhotoProfileAsync(string id);
         Task<ResponseApi<User?>> ValidatedAccessAsync(string codeAccess);
-        Task<ResponseApi<User>> DeleteAsync(string id);
+        Task<ResponseApi<User>> DeleteAsync(DeleteDTO request);
     }
 }

@@ -10,14 +10,21 @@ namespace api_infor_cell.src.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    public class UserController(IUserService userService) : ControllerBase
+    public class UserController(IUserService service, ILoggerService loggerService) : ControllerBase
     {
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-            PaginationApi<List<dynamic>> response = await userService.GetAllAsync(new(Request.Query), userId);
+            PaginationApi<List<dynamic>> response = await service.GetAllAsync(new(Request.Query), userId);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users",
+                Method = "GET",
+                Message = response.Message ?? "Usuários listados com sucesso",
+                StatusCode = response.StatusCode
+            });
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
         
@@ -25,7 +32,14 @@ namespace api_infor_cell.src.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(string id)
         {
-            ResponseApi<dynamic?> response = await userService.GetByIdAggregateAsync(id);
+            ResponseApi<dynamic?> response = await service.GetByIdAggregateAsync(id);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users/{id}",
+                Method = "GET",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
@@ -35,7 +49,14 @@ namespace api_infor_cell.src.Controllers
         {
             if (user == null) return BadRequest("Dados inválidos.");
 
-            ResponseApi<User?> response = await userService.CreateAsync(user);
+            ResponseApi<User?> response = await service.CreateAsync(user);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users",
+                Method = "POST",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
 
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
@@ -46,18 +67,14 @@ namespace api_infor_cell.src.Controllers
         {
             if (user == null) return BadRequest("Dados inválidos.");
 
-            ResponseApi<User?> response = await userService.UpdateAsync(user);
-
-            return StatusCode(response.StatusCode, new { response.Message, response.Result });
-        }
-        
-        [Authorize]
-        [HttpPut("modules")]
-        public async Task<IActionResult> UpdateModules([FromBody] UpdateUserModuleDTO user)
-        {
-            if (user == null) return BadRequest("Dados inválidos.");
-
-            ResponseApi<User?> response = await userService.UpdateModuleAsync(user);
+            ResponseApi<User?> response = await service.UpdateAsync(user);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users",
+                Method = "PUT",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
 
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
@@ -67,7 +84,14 @@ namespace api_infor_cell.src.Controllers
         {
             if (user == null) return BadRequest("Dados inválidos.");
 
-            ResponseApi<User?> response = await userService.ResendCodeAccessAsync(user);
+            ResponseApi<User?> response = await service.ResendCodeAccessAsync(user);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users/code-access",
+                Method = "PUT",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
 
             return response.IsSuccess ? Ok(new{response.Message}) : BadRequest(new{response.Message});
         }
@@ -77,7 +101,14 @@ namespace api_infor_cell.src.Controllers
         {
             if (user == null) return BadRequest("Dados inválidos.");
 
-            ResponseApi<User?> response = await userService.ValidatedAccessAsync(user.CodeAccess);
+            ResponseApi<User?> response = await service.ValidatedAccessAsync(user.CodeAccess);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users/confirm-access",
+                Method = "PUT",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
             return response.IsSuccess ? Ok(new{response.Message}) : BadRequest(new{response.Message});
         }
 
@@ -85,7 +116,14 @@ namespace api_infor_cell.src.Controllers
         [HttpPut("profile-photo")]
         public async Task<IActionResult> SavePhotoProfileAsync([FromForm] SaveUserPhotoDTO user)
         {
-            ResponseApi<User?> response = await userService.SavePhotoProfileAsync(user);
+            ResponseApi<User?> response = await service.SavePhotoProfileAsync(user);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users/profile-photo",
+                Method = "PUT",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
         
@@ -93,7 +131,14 @@ namespace api_infor_cell.src.Controllers
         [HttpDelete("remove-profile-photo/{id}")]
         public async Task<IActionResult> RemovePhotoProfileAsync(string id)
         {
-            ResponseApi<User?> response = await userService.RemovePhotoProfileAsync(id);
+            ResponseApi<User?> response = await service.RemovePhotoProfileAsync(id);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users/remove-profile-photo/{id}",
+                Method = "DELETE",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
             return response.IsSuccess ? Ok(new{response.Message}) : BadRequest(new{response.Message});
         }
         
@@ -103,7 +148,14 @@ namespace api_infor_cell.src.Controllers
         {
             string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            ResponseApi<dynamic?> response = await userService.GetLoggedAsync(userId!);
+            ResponseApi<dynamic?> response = await service.GetLoggedAsync(userId!);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users/logged",
+                Method = "GET",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
 
@@ -111,8 +163,15 @@ namespace api_infor_cell.src.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            ResponseApi<User> response = await userService.DeleteAsync(id);
-
+            string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ResponseApi<User> response = await service.DeleteAsync(new () { Id = id, DeletedBy = userId! });
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/users/{id}",
+                Method = "DELETE",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode 
+            });
             return StatusCode(response.StatusCode, new { response.Message });
         }
     }

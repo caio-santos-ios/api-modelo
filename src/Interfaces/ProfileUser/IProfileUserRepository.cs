@@ -1,5 +1,6 @@
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
+using api_infor_cell.src.Shared.DTOs;
 using api_infor_cell.src.Shared.Utils;
 
 namespace api_infor_cell.src.Interfaces
@@ -15,6 +16,6 @@ public interface IProfileUserRepository
     Task<ResponseApi<long>> GetNextCodeAsync(string planId, string companyId, string storeId);
     Task<ResponseApi<ProfileUser?>> CreateAsync(ProfileUser address);
     Task<ResponseApi<ProfileUser?>> UpdateAsync(ProfileUser address);
-    Task<ResponseApi<ProfileUser>> DeleteAsync(string id);
+    Task<ResponseApi<ProfileUser>> DeleteAsync(DeleteDTO request);
 }
 }

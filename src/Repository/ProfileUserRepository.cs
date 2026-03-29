@@ -2,6 +2,7 @@ using api_infor_cell.src.Configuration;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
+using api_infor_cell.src.Shared.DTOs;
 using api_infor_cell.src.Shared.Utils;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -216,16 +217,18 @@ namespace api_infor_cell.src.Repository
         #endregion
         
         #region DELETE
-        public async Task<ResponseApi<ProfileUser>> DeleteAsync(string id)
+        public async Task<ResponseApi<ProfileUser>> DeleteAsync(DeleteDTO request)
         {
             try
             {
-                ProfileUser? profileUser = await context.ProfileUsers.Find(x => x.Id == id && !x.Deleted).FirstOrDefaultAsync();
+                ProfileUser? profileUser = await context.ProfileUsers.Find(x => x.Id == request.Id && !x.Deleted).FirstOrDefaultAsync();
                 if(profileUser is null) return new(null, 404, "Perfil de Usuário não encontrado");
+                
                 profileUser.Deleted = true;
                 profileUser.DeletedAt = DateTime.UtcNow;
+                profileUser.DeletedBy = request.DeletedBy;
 
-                await context.ProfileUsers.ReplaceOneAsync(x => x.Id == id, profileUser);
+                await context.ProfileUsers.ReplaceOneAsync(x => x.Id == request.Id, profileUser);
 
                 return new(profileUser, 204, "Perfil de Usuário excluída com sucesso");
             }

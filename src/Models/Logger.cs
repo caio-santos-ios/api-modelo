@@ -21,5 +21,8 @@ namespace api_infor_cell.src.Models
         
         [BsonElement("message")]
         public string Message {get;set;} = string.Empty;
+        
+        [BsonElement("audit")]
+        public bool Audit {get;set;} = false;
     }
 }

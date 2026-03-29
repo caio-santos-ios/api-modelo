@@ -12,6 +12,6 @@ namespace api_infor_cell.src.Interfaces
         Task<ResponseApi<List<dynamic>>> GetSelectAsync(GetAllDTO request);
         Task<ResponseApi<ProfileUser?>> CreateAsync(CreateProfileUserDTO request);
         Task<ResponseApi<ProfileUser?>> UpdateAsync(UpdateProfileUserDTO request);
-        Task<ResponseApi<ProfileUser>> DeleteAsync(string id);
+        Task<ResponseApi<ProfileUser>> DeleteAsync(DeleteDTO request);
     }
 }

@@ -114,23 +114,23 @@ namespace api_infor_cell.src.Services
 
                 switch(request.Code)
                 {
-                    case "forgot_password_web":
+                    case "FORGOT_PASSWORD_WEB":
                         await mailHandler.SendMailAsync(userResponse.Data.Email, "Recuperação de Senha", await mailTemplate.ForgotPasswordWeb(userResponse.Data.Name, userResponse.Data.CodeAccess));
                         break;
 
-                    case "first_access":
+                    case "FIRST_ACCESS":
                         await mailHandler.SendMailAsync(userResponse.Data.Email, "Primeiro Acesso", await mailTemplate.FirstAccess(userResponse.Data.Name, userResponse.Data.Email, userResponse.Data.CodeAccess));
                         break;
 
-                    case "confirm_account":
+                    case "CONFIRM_ACCOUNT":
                         await mailHandler.SendMailAsync(userResponse.Data.Email, "Confirmar Conta", await mailTemplate.ConfirmAccount(userResponse.Data.Name, userResponse.Data.CodeAccess));
                         break;
 
-                    case "new_code_confirm_account":
+                    case "NEW_CODE_CONFIRM_ACCOUNT":
                         await mailHandler.SendMailAsync(userResponse.Data.Email, "Novo Código de Confirmação de Conta", await mailTemplate.NewCodeConfirmAccount(userResponse.Data.Name, userResponse.Data.CodeAccess));
                         break;
 
-                    case "new_link_code_confirm_account":
+                    case "NEW_LINK_CODE_CONFIRM_ACCOUNT":
                         await mailHandler.SendMailAsync(userResponse.Data.Email, "Novo Link de Confirmação de Conta", await mailTemplate.NewLinkCodeConfirmAccount(userResponse.Data.Name, userResponse.Data.CodeAccess));
                         break;
                 }

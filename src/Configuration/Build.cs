@@ -3,6 +3,7 @@ using api_infor_cell.src.Handlers;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Repository;
 using api_infor_cell.src.Services;
+using api_infor_cell.src.Shared.Templates;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -86,6 +87,9 @@ namespace api_infor_cell.src.Configuration
             builder.Services.AddTransient<MailHandler>();
             builder.Services.AddTransient<UploadHandler>();
             builder.Services.AddTransient<CountHandler>();
+
+            // Templates
+            builder.Services.AddTransient<MailTemplate>();
 
             builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
         }

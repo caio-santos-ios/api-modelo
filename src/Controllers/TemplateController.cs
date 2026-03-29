@@ -94,6 +94,26 @@ namespace api_infor_cell.src.Controllers
         }    
         
         [Authorize]
+        [HttpPut("send-mail")]
+        public async Task<IActionResult> SendMail([FromBody] SendTemplateDTO body)
+        {
+            if (body == null) return BadRequest("Dados inválidos.");
+            string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            body.CreatedBy = userId!;
+
+            ResponseApi<Template?> response = await service.SendAsync(body);
+            await loggerService.CreateAsync(new CreateLoggerDTO
+            {
+                Path = "/api/templates/send-mail",
+                Method = "PUT",
+                Message = response.Message ?? "",
+                StatusCode = response.StatusCode
+            });
+
+            return StatusCode(response.StatusCode, new { response.Result });
+        }    
+        
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {

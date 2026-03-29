@@ -117,12 +117,12 @@ namespace api_infor_cell.src.Services
                 ResponseApi<User?> user = await userRepository.GetByIdAsync(request.Id);
                 
                 if(user.Data is null || !Validator.IsEmail(request.Email)) return new(null, 404, "Falha ao atualizar");
-
                 if(request.ProfileUserId != user.Data.ProfileUserId)
                 {
                     ResponseApi<ProfileUser?> newProfile = await profileUserRepository.GetByIdAsync(request.ProfileUserId);
                     if(newProfile.Data is null) return new(null, 404, "Perfil de usuário não encontrado");
                     user.Data.Modules = newProfile.Data.Modules;
+
                     user.Data.ProfileUserId = request.ProfileUserId;
                 }
 

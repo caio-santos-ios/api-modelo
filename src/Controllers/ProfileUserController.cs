@@ -36,7 +36,7 @@ namespace api_infor_cell.src.Controllers
             {
                 Path = "/api/profile-users/{id}",
                 Method = "GET",
-                Message = response.Message ?? "",
+                Message = response.Message ?? "Perfil de usuário obtido com sucesso",
                 StatusCode = response.StatusCode
             });
             return StatusCode(response.StatusCode, new { response.Result });
@@ -51,7 +51,7 @@ namespace api_infor_cell.src.Controllers
             {
                 Path = "/api/profile-users/select",
                 Method = "GET",
-                Message = response.Message ?? "",
+                Message = response.Message ?? "Perfis de usuário listados com sucesso",
                 StatusCode = response.StatusCode
             });
             return StatusCode(response.StatusCode, new { response.Result });

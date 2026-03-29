@@ -1,3 +1,4 @@
+using api_infor_cell.src.Handlers;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
@@ -7,7 +8,12 @@ using AutoMapper;
 
 namespace api_infor_cell.src.Services
 {
-    public class ProfileUserService(IProfileUserRepository repository, IMapper _mapper) : IProfileUserService
+    public class ProfileUserService
+    (
+        IProfileUserRepository repository, 
+        CountHandler countHandler, 
+        IMapper _mapper
+    ) : IProfileUserService
     {
         #region READ
         public async Task<PaginationApi<List<dynamic>>> GetAllAsync(GetAllDTO request)
@@ -71,9 +77,8 @@ namespace api_infor_cell.src.Services
             try
             {
                 ProfileUser profileUser = _mapper.Map<ProfileUser>(request);
-                // ResponseApi<long> code = await repository.GetNextCodeAsync(request.Plan, request.Company, request.Store);
 
-                // profileUser.Code = code.Data.ToString().PadLeft(6, '0');
+                profileUser.Code = await countHandler.NextCountAsync("profile_user");
                 ResponseApi<ProfileUser?> response = await repository.CreateAsync(profileUser);
 
                 if(response.Data is null) return new(null, 400, "Falha ao criar Perfil de Usuário.");

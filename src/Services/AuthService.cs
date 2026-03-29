@@ -36,8 +36,8 @@ namespace api_infor_cell.src.Services
 
                     await userRepository.UpdateAsync(res.Data);
 
-                    // await mailHandler.SendMailAsync(request.Email, "Confirmar Conta", MailTemplate.NewLinkCodeConfirmAccount(res.Data.Name, access.CodeAccess));
-                    // return new(null, 400, "Conta não confirmada. Verifique seu e-mail.");
+                    await mailHandler.SendMailAsync(request.Email, "Confirmar Conta", MailTemplate.NewLinkCodeConfirmAccount(res.Data.Name, access.CodeAccess));
+                    return new(null, 400, "Conta não confirmada. Verifique seu e-mail.");
                 } 
                 if (user.Blocked) return new(null, 400, "Conta bloqueada. Entre em contato com o suporte.");
 
@@ -57,7 +57,7 @@ namespace api_infor_cell.src.Services
                     Master = user.Master
                 };
 
-                return new(response);
+                return new(response, 200, "Login realizado com sucesso");
             }
             catch(Exception ex)
             {
@@ -89,7 +89,7 @@ namespace api_infor_cell.src.Services
                     Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                     CodeAccess = access.CodeAccess,
                     CodeAccessExpiration = access.CodeAccessExpiration,
-                    ValidatedAccess = true, // colocar false depois de resolver problema do envio de email
+                    ValidatedAccess = false,
                     Modules = [],
                     Admin = true,
                     Master = false,
@@ -100,7 +100,7 @@ namespace api_infor_cell.src.Services
                 ResponseApi<User?> response = await userRepository.CreateAsync(user);
                 if(response.Data is null) return new(null, 400, "Falha ao criar conta.");
 
-                // await mailHandler.SendMailAsync(request.Email, "Código de Confirmação", MailTemplate.ConfirmAccount(request.Name, access.CodeAccess));
+                await mailHandler.SendMailAsync(request.Email, "Código de Confirmação", MailTemplate.ConfirmAccount(request.Name, access.CodeAccess));
 
                 return new(null, 201, "Conta criada com sucesso, foi enviado o e-mail de confirmação.");
             }

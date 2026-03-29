@@ -40,6 +40,7 @@ namespace api_infor_cell.src.Configuration
         #region SETTINGS
         public IMongoCollection<Logger> Loggers => Database.GetCollection<Logger>("loggers");
         public IMongoCollection<Count> Counts => Database.GetCollection<Count>("counts");
+        public IMongoCollection<Template> Templates => Database.GetCollection<Template>("templates");
         #endregion
     }
 }

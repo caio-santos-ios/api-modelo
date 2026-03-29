@@ -11,10 +11,10 @@ using MongoDB.Driver;
 
 namespace api_infor_cell.src.Repository
 {
-    public class ProfileUserRepository(AppDbContext context) : IProfileUserRepository
+    public class TemplateRepository(AppDbContext context) : ITemplateRepository
     {
         #region READ
-        public async Task<ResponseApi<List<dynamic>>> GetAllAsync(PaginationUtil<ProfileUser> pagination)
+        public async Task<ResponseApi<List<dynamic>>> GetAllAsync(PaginationUtil<Template> pagination)
         {
             try
             {
@@ -35,13 +35,13 @@ namespace api_infor_cell.src.Repository
                     new("$sort", pagination.PipelineSort),
                 };
 
-                List<BsonDocument> results = await context.ProfileUsers.Aggregate<BsonDocument>(pipeline).ToListAsync();
+                List<BsonDocument> results = await context.Templates.Aggregate<BsonDocument>(pipeline).ToListAsync();
                 List<dynamic> list = results.Select(doc => BsonSerializer.Deserialize<dynamic>(doc)).ToList();
                 return new(list);
             }
             catch
             {
-                return new(null, 500, "Falha ao buscar Perfil de Usuário");
+                return new(null, 500, "Falha ao buscar Template");
             }
         } 
         public async Task<ResponseApi<dynamic?>> GetByIdAggregateAsync(string id)
@@ -65,28 +65,28 @@ namespace api_infor_cell.src.Repository
                     }),
                 ];
 
-                BsonDocument? response = await context.ProfileUsers.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+                BsonDocument? response = await context.Templates.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
                 dynamic? result = response is null ? null : BsonSerializer.Deserialize<dynamic>(response);
-                return result is null ? new(null, 404, "Perfil de Usuário não encontrado") : new(result);
+                return result is null ? new(null, 404, "Template não encontrado") : new(result);
             }
             catch
             {
-                return new(null, 500, "Falha ao buscar Perfil de Usuário");
+                return new(null, 500, "Falha ao buscar Template");
             }
         }   
-        public async Task<ResponseApi<ProfileUser?>> GetByIdAsync(string id)
+        public async Task<ResponseApi<Template?>> GetByIdAsync(string id)
         {
             try
             {
-                ProfileUser? profileUser = await context.ProfileUsers.Find(x => x.Id == id && !x.Deleted).FirstOrDefaultAsync();
-                return new(profileUser);
+                Template? template = await context.Templates.Find(x => x.Id == id && !x.Deleted).FirstOrDefaultAsync();
+                return new(template);
             }
             catch
             {
-                return new(null, 500, "Falha ao buscar Perfil de Usuário");
+                return new(null, 500, "Falha ao buscar Template");
             }
         } 
-        public async Task<ResponseApi<List<dynamic>>> GetSelectAsync(PaginationUtil<ProfileUser> pagination)
+        public async Task<ResponseApi<List<dynamic>>> GetSelectAsync(PaginationUtil<Template> pagination)
         {
             try
             {
@@ -108,7 +108,7 @@ namespace api_infor_cell.src.Repository
                     new("$sort", pagination.PipelineSort),
                 };
 
-                List<BsonDocument> results = await context.ProfileUsers.Aggregate<BsonDocument>(pipeline).ToListAsync();
+                List<BsonDocument> results = await context.Templates.Aggregate<BsonDocument>(pipeline).ToListAsync();
                 List<dynamic> list = results.Select(doc => BsonSerializer.Deserialize<dynamic>(doc)).ToList();
                 return new(list);
             }
@@ -117,7 +117,7 @@ namespace api_infor_cell.src.Repository
                 return new(null, 500, "Falha ao buscar Empresas");
             }
         }
-        public async Task<int> GetCountDocumentsAsync(PaginationUtil<ProfileUser> pagination)
+        public async Task<int> GetCountDocumentsAsync(PaginationUtil<Template> pagination)
         {
             List<BsonDocument> pipeline = new()
             {
@@ -134,62 +134,62 @@ namespace api_infor_cell.src.Repository
                 new("$sort", pagination.PipelineSort),
             };
 
-            List<BsonDocument> results = await context.ProfileUsers.Aggregate<BsonDocument>(pipeline).ToListAsync();
+            List<BsonDocument> results = await context.Templates.Aggregate<BsonDocument>(pipeline).ToListAsync();
             return results.Select(doc => BsonSerializer.Deserialize<dynamic>(doc)).Count();
         }
         #endregion
         
         #region CREATE
-        public async Task<ResponseApi<ProfileUser?>> CreateAsync(ProfileUser profileUser)
+        public async Task<ResponseApi<Template?>> CreateAsync(Template template)
         {
             try
             {
-                await context.ProfileUsers.InsertOneAsync(profileUser);
+                await context.Templates.InsertOneAsync(template);
 
-                return new(profileUser, 201, "Perfil de Usuário criada com sucesso");
+                return new(template, 201, "Template criada com sucesso");
             }
             catch
             {
-                return new(null, 500, "Falha ao criar Perfil de Usuário");  
+                return new(null, 500, "Falha ao criar Template");  
             }
         }
         #endregion
         
         #region UPDATE
-        public async Task<ResponseApi<ProfileUser?>> UpdateAsync(ProfileUser profileUser)
+        public async Task<ResponseApi<Template?>> UpdateAsync(Template template)
         {
             try
             {
-                await context.ProfileUsers.ReplaceOneAsync(x => x.Id == profileUser.Id, profileUser);
+                await context.Templates.ReplaceOneAsync(x => x.Id == template.Id, template);
 
-                return new(profileUser, 201, "Perfil de Usuário atualizada com sucesso");
+                return new(template, 201, "Template atualizada com sucesso");
             }
             catch
             {
-                return new(null, 500, "Falha ao atualizar Perfil de Usuário");
+                return new(null, 500, "Falha ao atualizar Template");
             }
         }
         #endregion
         
         #region DELETE
-        public async Task<ResponseApi<ProfileUser>> DeleteAsync(DeleteDTO request)
+        public async Task<ResponseApi<Template>> DeleteAsync(DeleteDTO request)
         {
             try
             {
-                ProfileUser? profileUser = await context.ProfileUsers.Find(x => x.Id == request.Id && !x.Deleted).FirstOrDefaultAsync();
-                if(profileUser is null) return new(null, 404, "Perfil de Usuário não encontrado");
+                Template? template = await context.Templates.Find(x => x.Id == request.Id && !x.Deleted).FirstOrDefaultAsync();
+                if(template is null) return new(null, 404, "Template não encontrado");
                 
-                profileUser.Deleted = true;
-                profileUser.DeletedAt = DateTime.UtcNow;
-                profileUser.DeletedBy = request.DeletedBy;
+                template.Deleted = true;
+                template.DeletedAt = DateTime.UtcNow;
+                template.DeletedBy = request.DeletedBy;
 
-                await context.ProfileUsers.ReplaceOneAsync(x => x.Id == request.Id, profileUser);
+                await context.Templates.ReplaceOneAsync(x => x.Id == request.Id, template);
 
-                return new(profileUser, 204, "Perfil de Usuário excluída com sucesso");
+                return new(template, 204, "Template excluída com sucesso");
             }
             catch
             {
-                return new(null, 500, "Falha ao excluír Perfil de Usuário");
+                return new(null, 500, "Falha ao excluír Template");
             }
         }
         #endregion

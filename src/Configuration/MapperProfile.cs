@@ -20,6 +20,9 @@ namespace api_infor_cell.src.Configuration
             #region SETTINGS
             CreateMap<CreateLoggerDTO, Logger>().ReverseMap();
             CreateMap<UpdateLoggerDTO, Logger>().ReverseMap();
+            
+            CreateMap<CreateTemplateDTO, Template>().ReverseMap();
+            CreateMap<UpdateTemplateDTO, Template>().ReverseMap();
             #endregion
         }
     }

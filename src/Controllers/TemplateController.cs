@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api_infor_cell.src.Controllers
 {
-    [Route("api/profile-users")]
+    [Route("api/templates")]
     [ApiController]
-    public class ProfileUserController(IProfileUserService service, ILoggerService loggerService) : ControllerBase
+    public class TemplateController(ITemplateService service, ILoggerService loggerService) : ControllerBase
     {
         [Authorize]
         [HttpGet]
@@ -19,9 +19,9 @@ namespace api_infor_cell.src.Controllers
             PaginationApi<List<dynamic>> response = await service.GetAllAsync(new(Request.Query));
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
-                Path = "/api/profile-users",
+                Path = "/api/templates",
                 Method = "GET",
-                Message = response.Message ?? "Perfis de usuário listados com sucesso",
+                Message = response.Message ?? "Templates listados com sucesso",
                 StatusCode = response.StatusCode
             });
             return StatusCode(response.StatusCode, new { response.Result });
@@ -34,7 +34,7 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<dynamic?> response = await service.GetByIdAggregateAsync(id);
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
-                Path = "/api/profile-users/{id}",
+                Path = "/api/templates/{id}",
                 Method = "GET",
                 Message = response.Message ?? "Perfil de usuário obtido com sucesso",
                 StatusCode = response.StatusCode
@@ -49,9 +49,9 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<List<dynamic>> response = await service.GetSelectAsync(new(Request.Query));
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
-                Path = "/api/profile-users/select",
+                Path = "/api/templates/select",
                 Method = "GET",
-                Message = response.Message ?? "Perfis de usuário listados com sucesso",
+                Message = response.Message ?? "Templates listados com sucesso",
                 StatusCode = response.StatusCode
             });
             return StatusCode(response.StatusCode, new { response.Result });
@@ -59,14 +59,14 @@ namespace api_infor_cell.src.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateProfileUserDTO body)
+        public async Task<IActionResult> Create([FromBody] CreateTemplateDTO body)
         {
             if (body == null) return BadRequest("Dados inválidos.");
 
-            ResponseApi<ProfileUser?> response = await service.CreateAsync(body);
+            ResponseApi<Template?> response = await service.CreateAsync(body);
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
-                Path = "/api/profile-users",
+                Path = "/api/templates",
                 Method = "POST",
                 Message = response.Message ?? "",
                 StatusCode = response.StatusCode
@@ -77,14 +77,14 @@ namespace api_infor_cell.src.Controllers
         
         [Authorize]
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateProfileUserDTO body)
+        public async Task<IActionResult> Update([FromBody] UpdateTemplateDTO body)
         {
             if (body == null) return BadRequest("Dados inválidos.");
 
-            ResponseApi<ProfileUser?> response = await service.UpdateAsync(body);
+            ResponseApi<Template?> response = await service.UpdateAsync(body);
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
-                Path = "/api/profile-users",
+                Path = "/api/templates",
                 Method = "PUT",
                 Message = response.Message ?? "",
                 StatusCode = response.StatusCode
@@ -92,16 +92,16 @@ namespace api_infor_cell.src.Controllers
 
             return StatusCode(response.StatusCode, new { response.Result });
         }    
-
+        
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            ResponseApi<ProfileUser> response = await service.DeleteAsync(new () { Id = id, DeletedBy = userId! });
+            ResponseApi<Template> response = await service.DeleteAsync(new () { Id = id, DeletedBy = userId! });
             await loggerService.CreateAsync(new CreateLoggerDTO
             {
-                Path = "/api/profile-users/{id}",
+                Path = "/api/templates/{id}",
                 Method = "DELETE",
                 Message = response.Message ?? "",
                 StatusCode = response.StatusCode

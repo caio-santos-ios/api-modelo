@@ -74,6 +74,9 @@ namespace api_infor_cell.src.Configuration
             builder.Services.AddTransient<ILoggerService, LoggerService>();
             builder.Services.AddTransient<ILoggerRepository, LoggerRepository>();
             
+            builder.Services.AddTransient<ITemplateService, TemplateService>();
+            builder.Services.AddTransient<ITemplateRepository, TemplateRepository>();
+            
             // DASHBOARD
             // builder.Services.AddTransient<IDashboardService, DashboardService>();
             // builder.Services.AddTransient<IDashboardRepository, DashboardRepository>();

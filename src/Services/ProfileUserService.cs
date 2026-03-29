@@ -30,19 +30,6 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
-        public async Task<ResponseApi<dynamic?>> GetLoggedAsync(string id)
-        {
-            try
-            {
-                ResponseApi<dynamic?> user = await repository.GetLoggedAsync(id);
-                if(user.Data is null) return new(null, 404, "Usuário não encontrado");
-                return new(user.Data);
-            }
-            catch
-            {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
-            }
-        }
         public async Task<ResponseApi<dynamic?>> GetByIdAggregateAsync(string id)
         {
             try

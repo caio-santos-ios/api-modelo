@@ -14,7 +14,7 @@ using api_infor_cell.src.Shared.Utils;
 
 namespace api_infor_cell.src.Services
 {
-    public class AuthService(IUserRepository userRepository, MailHandler mailHandler) : IAuthService
+    public class AuthService(IUserRepository userRepository, MailHandler mailHandler, MailTemplate mailTemplate) : IAuthService
     {
         public async Task<ResponseApi<AuthResponse>> LoginAsync(LoginDTO request)
         {
@@ -36,7 +36,7 @@ namespace api_infor_cell.src.Services
 
                     await userRepository.UpdateAsync(res.Data);
 
-                    await mailHandler.SendMailAsync(request.Email, "Confirmar Conta", MailTemplate.NewLinkCodeConfirmAccount(res.Data.Name, access.CodeAccess));
+                    await mailHandler.SendMailAsync(request.Email, "Confirmar Conta", await mailTemplate.NewLinkCodeConfirmAccount(res.Data.Name, access.CodeAccess));
                     return new(null, 400, "Conta não confirmada. Verifique seu e-mail.");
                 } 
                 if (user.Blocked) return new(null, 400, "Conta bloqueada. Entre em contato com o suporte.");
@@ -100,7 +100,7 @@ namespace api_infor_cell.src.Services
                 ResponseApi<User?> response = await userRepository.CreateAsync(user);
                 if(response.Data is null) return new(null, 400, "Falha ao criar conta.");
 
-                await mailHandler.SendMailAsync(request.Email, "Código de Confirmação", MailTemplate.ConfirmAccount(request.Name, access.CodeAccess));
+                await mailHandler.SendMailAsync(request.Email, "Código de Confirmação", await mailTemplate.ConfirmAccount(request.Name, access.CodeAccess));
 
                 return new(null, 201, "Conta criada com sucesso, foi enviado o e-mail de confirmação.");
             }
@@ -153,7 +153,7 @@ namespace api_infor_cell.src.Services
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
                 if(response.Data is null) return new(null, 400, "Falha ao solicitar novo código.");
 
-                await mailHandler.SendMailAsync(request.Email, "Novo Código de Verificação", MailTemplate.NewCodeConfirmAccount(user.Data.Name, access.CodeAccess));
+                await mailHandler.SendMailAsync(request.Email, "Novo Código de Verificação", await mailTemplate.NewCodeConfirmAccount(user.Data.Name, access.CodeAccess));
 
                 return new(null, 200, "Novo código foi enviado.");
             }
@@ -256,7 +256,7 @@ namespace api_infor_cell.src.Services
                 responseUser.Data.CodeAccessExpiration = access.CodeAccessExpiration;
                 responseUser.Data.ValidatedAccess = false;
 
-                string template = MailTemplate.ForgotPasswordWeb(responseUser.Data.Name, responseUser.Data.CodeAccess);
+                string template = await mailTemplate.ForgotPasswordWeb(responseUser.Data.Name, responseUser.Data.CodeAccess);
                 await mailHandler.SendMailAsync(request.Email, "Redefinição de Senha", template);
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(responseUser.Data);

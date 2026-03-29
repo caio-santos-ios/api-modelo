@@ -73,7 +73,7 @@ namespace api_infor_cell.src.Services
                     UserName = $"usuário{access.CodeAccess}",
                     Email = request.Email,
                     Name = request.Name,
-                    Password = BCrypt.Net.BCrypt.HashPassword(access.CodeAccess),
+                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                     CodeAccess = "",
                     CodeAccessExpiration = null,
                     ValidatedAccess = true,
@@ -126,6 +126,11 @@ namespace api_infor_cell.src.Services
                     user.Data.ProfileUserId = request.ProfileUserId;
                 }
 
+                if(!string.IsNullOrEmpty(request.Password))
+                {
+                    user.Data.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                }
+
                 user.Data.UpdatedAt = DateTime.UtcNow;
                 user.Data.UserName = request.UserName;
                 user.Data.Email = request.Email;
@@ -146,7 +151,7 @@ namespace api_infor_cell.src.Services
         {
             try
             {
-                if(string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.Phone)) return new(null, 400, "E-mail ou celular é obrigatório.");                    
+                if(string.IsNullOrEmpty(request.Email)) return new(null, 400, "E-mail é obrigatório.");                    
 
                 User? user = new();
 

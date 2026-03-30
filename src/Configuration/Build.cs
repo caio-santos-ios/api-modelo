@@ -95,10 +95,7 @@ namespace api_infor_cell.src.Configuration
             // AutoMapper
             builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
 
-             // CLOUDINARY
-            System.Console.WriteLine(Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME"));
-            System.Console.WriteLine(Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY"));
-            System.Console.WriteLine(Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET"));
+            // CLOUDINARY
             Account account = new(
                 Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME"),
                 Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY"),

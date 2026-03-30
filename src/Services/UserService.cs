@@ -197,7 +197,7 @@ namespace api_infor_cell.src.Services
                     request.Photo.CopyTo(stream);
                 }
 
-                string uriPhoto = await uploadHander.UploadAttachment("user", request.Photo);
+                string uriPhoto = await uploadHander.UploadAttachment("users", request.Photo, "/api/users/photo-profile");
                 user.Data.UpdatedAt = DateTime.UtcNow;
                 user.Data.Photo = uriPhoto;
 

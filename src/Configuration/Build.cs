@@ -4,6 +4,7 @@ using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Repository;
 using api_infor_cell.src.Services;
 using api_infor_cell.src.Shared.Templates;
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -91,7 +92,19 @@ namespace api_infor_cell.src.Configuration
             // Templates
             builder.Services.AddTransient<MailTemplate>();
 
+            // AutoMapper
             builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
+
+             // CLOUDINARY
+            System.Console.WriteLine(Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME"));
+            System.Console.WriteLine(Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY"));
+            System.Console.WriteLine(Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET"));
+            Account account = new(
+                Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME"),
+                Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY"),
+                Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET")
+            );
+            builder.Services.AddSingleton(new Cloudinary(account));
         }
     }
 }

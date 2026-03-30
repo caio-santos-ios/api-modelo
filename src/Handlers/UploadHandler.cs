@@ -1,43 +1,71 @@
+using api_infor_cell.src.Interfaces;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using SixLabors.ImageSharp;
 
 namespace api_infor_cell.src.Handlers
 {
-    public class UploadHandler(IWebHostEnvironment env)
+    public class UploadHandler(Cloudinary cloudinary, ILoggerService loggerService)
     {
-        public async Task<string> UploadAttachment(string parent, IFormFile attachment)
+        public async Task<string> UploadAttachment(string parent, IFormFile attachment, string apiPath = "")
         {
-            string webRoot = Path.Combine(env.ContentRootPath, "wwwroot");
-            string uploadPath = Path.Combine(webRoot, "uploads", parent);
-
-            if (!Directory.Exists(uploadPath))
+            try
             {
-                Directory.CreateDirectory(uploadPath);
-            }
+                
+                string extension = Path.GetExtension(attachment.FileName).ToLower();
+                bool isHeic = extension == ".heic" || extension == ".heif";
+                string fileName = Guid.NewGuid().ToString();
 
-            string extension = Path.GetExtension(attachment.FileName).ToLower();
-            string fileName = $"{Guid.NewGuid()}";
-            
-            bool isHeic = extension == ".heic" || extension == ".heif";
-            string finalExtension = isHeic ? ".jpg" : extension;
-            string filePath = Path.Combine(uploadPath, fileName + finalExtension);
+                using var memoryStream = new MemoryStream();
 
-            if (isHeic)
-            {
-                using (var inputStream = attachment.OpenReadStream())
-                using (var image = await Image.LoadAsync(inputStream))
+                if (isHeic)
                 {
-                    await image.SaveAsJpegAsync(filePath);
+                    using var inputStream = attachment.OpenReadStream();
+                    using var image = await Image.LoadAsync(inputStream);
+                    await image.SaveAsJpegAsync(memoryStream);
+                    memoryStream.Position = 0;
+                    extension = ".jpg";
                 }
-            }
-            else
-            {
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                else
                 {
-                    await attachment.CopyToAsync(stream);
+                    await attachment.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0;
                 }
-            }
 
-            return Path.Combine("uploads", parent, fileName + finalExtension).Replace("\\", "/");
+                var uploadParams = new RawUploadParams
+                {
+                    File = new FileDescription(fileName + extension, memoryStream),
+                    Folder = $"projeto-modelo/{parent}",
+                    PublicId = fileName
+                };
+
+                var result = await cloudinary.UploadAsync(uploadParams);
+
+                if (result.Error != null) 
+                {
+                    await loggerService.CreateAsync(new()
+                    {
+                        Method = "UPLOAD_ATTACHMENT",
+                        Path = apiPath,
+                        Message = $"Failed to upload attachment: {result.Error.Message}",
+                        StatusCode = 500
+                    });
+                    return "";
+                } 
+
+                return result.SecureUrl.ToString();
+            }
+            catch (Exception ex)
+            {
+                await loggerService.CreateAsync(new()
+                {
+                    Method = "UPLOAD_ATTACHMENT",
+                    Path = apiPath,
+                    Message = $"Failed to upload attachment: {ex.Message}",
+                    StatusCode = 500
+                });
+                return "";
+            }
         }
     }
 }

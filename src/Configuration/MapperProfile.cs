@@ -23,6 +23,9 @@ namespace api_infor_cell.src.Configuration
             
             CreateMap<CreateTemplateDTO, Template>().ReverseMap();
             CreateMap<UpdateTemplateDTO, Template>().ReverseMap();
+
+            CreateMap<CreateTriggerDTO, Trigger>().ReverseMap();
+            CreateMap<UpdateTriggerDTO, Trigger>().ReverseMap();
             #endregion
         }
     }

@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using api_infor_cell.src.Configuration;
+using api_infor_cell.src.Hubs;
 using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -9,9 +11,51 @@ Env.Load();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.AddBuilderConfiguration();
-builder.AddBuilderAuthentication();
 builder.AddContext();
 builder.AddBuilderServices();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    string secretKey = Environment.GetEnvironmentVariable("SECRET_KEY") ?? "";
+    string issuer    = Environment.GetEnvironmentVariable("ISSUER")     ?? "";
+    string audience  = Environment.GetEnvironmentVariable("AUDIENCE")   ?? "";
+
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidateIssuer           = true,
+        ValidateAudience         = true,
+        ValidateLifetime         = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer              = issuer,
+        ValidAudience            = audience,
+        ClockSkew                = TimeSpan.FromMinutes(5),
+        IssuerSigningKey         = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+            System.Text.Encoding.UTF8.GetBytes(secretKey)
+        )
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path        = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/hubs/notifications") || path.StartsWithSegments("/hubs/chat")))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
+});
+
 builder.Services.AddControllers()
 .ConfigureApiBehaviorOptions(options =>
 {
@@ -20,16 +64,16 @@ builder.Services.AddControllers()
         var errors = context.ModelState
             .Where(e => e.Value!.Errors.Count > 0)
             .Select(e => new {
-                Field = e.Key,
+                Field   = e.Key,
                 Message = e.Value!.Errors.First().ErrorMessage,
-                Order = context.ActionDescriptor.Parameters
+                Order   = context.ActionDescriptor.Parameters
                     .SelectMany(p => p.ParameterType.GetProperties())
                     .FirstOrDefault(p => p.Name == e.Key)?
                     .GetCustomAttributes(typeof(DisplayAttribute), false)
                     .Cast<DisplayAttribute>()
                     .FirstOrDefault()?.Order ?? 999
             })
-            .OrderBy(e => e.Order) 
+            .OrderBy(e => e.Order)
             .Select(e => new { e.Field, e.Message })
             .ToList();
 
@@ -40,14 +84,14 @@ builder.Services.AddControllers()
 builder.Services.AddSwaggerGen(c =>
 {
     c.CustomSchemaIds(type => type.FullName);
-    
+
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        Name = "Authorization", 
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Scheme = "Bearer", 
-        BearerFormat = "JWT", 
+        Name        = "Authorization",
+        Type        = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        In          = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Scheme      = "Bearer",
+        BearerFormat = "JWT",
         Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
     });
 
@@ -59,38 +103,30 @@ builder.Services.AddSwaggerGen(c =>
                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Id   = "Bearer"
                 }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
 });
 
-const string ProductionCorsPolicy = "ProductionPolicy";
-const string DevelopmentCorsPolicy = "DevelopmentPolicy";
+var allowedOrigins = (Environment.GetEnvironmentVariable("ALLOWED_ORIGINS") ?? "http://localhost:3000")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: ProductionCorsPolicy, policy =>
-    {
-        policy.AllowAnyOrigin()
+    options.AddPolicy("AppPolicy", policy =>
+        policy
+            .WithOrigins(allowedOrigins)   
             .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-
-    options.AddPolicy(name: DevelopmentCorsPolicy, policy  =>
-    {
-        policy.AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
+            .AllowAnyMethod()
+            .AllowCredentials());           
 });
 
 builder.Services.AddAuthorization();
 
-var app = builder.Build(); 
-
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -100,22 +136,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(
-    app.Environment.IsDevelopment()
-        ? DevelopmentCorsPolicy
-        : ProductionCorsPolicy
-);
-
+app.UseCors("AppPolicy");
 
 var uploadPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads");
 if (!Directory.Exists(uploadPath))
-{
     Directory.CreateDirectory(uploadPath);
-}
 
 app.UseStaticFiles();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<ChatHub>("/hubs/chat");
+
 app.MapControllers();
 app.Run();

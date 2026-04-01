@@ -41,6 +41,13 @@ namespace api_infor_cell.src.Configuration
         public IMongoCollection<Logger> Loggers => Database.GetCollection<Logger>("loggers");
         public IMongoCollection<Count> Counts => Database.GetCollection<Count>("counts");
         public IMongoCollection<Template> Templates => Database.GetCollection<Template>("templates");
+        public IMongoCollection<Trigger> Triggers => Database.GetCollection<Trigger>("triggers");
+        public IMongoCollection<Notification> Notifications => Database.GetCollection<Notification>("notifications");
+        #endregion
+        
+        #region CHAT
+        public IMongoCollection<ChatMessage>  ChatMessages  => Database.GetCollection<ChatMessage>("chat_messages");
+        public IMongoCollection<Conversation> Conversations => Database.GetCollection<Conversation>("conversations");
         #endregion
     }
 }

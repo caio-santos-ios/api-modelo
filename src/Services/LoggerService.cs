@@ -3,7 +3,6 @@ using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
 using api_infor_cell.src.Shared.DTOs;
 using api_infor_cell.src.Shared.Utils;
-using api_infor_cell.src.Shared.Validators;
 using AutoMapper;
 
 namespace api_infor_cell.src.Services

@@ -1,8 +1,10 @@
+using api_infor_cell.src.Filters;
 using api_infor_cell.src.Handlers;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Repository;
 using api_infor_cell.src.Services;
 using api_infor_cell.src.Shared.Templates;
+using api_infor_cell.src.Workers;
 using CloudinaryDotNet;
 
 namespace api_infor_cell.src.Configuration
@@ -13,7 +15,8 @@ namespace api_infor_cell.src.Configuration
         {
             AppDbContext.ConnectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") ?? "";
             AppDbContext.DatabaseName     = Environment.GetEnvironmentVariable("DATABASE_NAME")     ?? "";
-            AppDbContext.IsSSL = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("IS_SSL")) && Convert.ToBoolean(Environment.GetEnvironmentVariable("IS_SSL"));
+            AppDbContext.IsSSL = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("IS_SSL"))
+                && Convert.ToBoolean(Environment.GetEnvironmentVariable("IS_SSL"));
         }
 
         public static void AddContext(this WebApplicationBuilder builder)
@@ -29,30 +32,35 @@ namespace api_infor_cell.src.Configuration
             // MASTER DATA
             builder.Services.AddTransient<IUserService, UserService>();
             builder.Services.AddTransient<IUserRepository, UserRepository>();
-
             builder.Services.AddTransient<IProfileUserService, ProfileUserService>();
             builder.Services.AddTransient<IProfileUserRepository, ProfileUserRepository>();
 
+            // FINANCIAL
+            builder.Services.AddTransient<IAccountReceivableService, AccountReceivableService>();
+            builder.Services.AddTransient<IAccountReceivableRepository, AccountReceivableRepository>();
+            builder.Services.AddTransient<IAccountPayableService, AccountPayableService>();
+            builder.Services.AddTransient<IAccountPayableRepository, AccountPayableRepository>();
+            builder.Services.AddTransient<IChartOfAccountsRepository, ChartOfAccountsRepository>();
+            builder.Services.AddTransient<IChartOfAccountsService, ChartOfAccountsService>();
+            builder.Services.AddTransient<IDreRepository, DreRepository>();
+            builder.Services.AddTransient<IDreService, DreService>();
+            builder.Services.AddTransient<IPaymentMethodRepository, PaymentMethodRepository>();
+            builder.Services.AddTransient<IPaymentMethodService, PaymentMethodService>();
+
             // SETTINGS
-            builder.Services.AddTransient<ILoggerService, LoggerService>();
-            builder.Services.AddTransient<ILoggerRepository, LoggerRepository>();
+            builder.Services.AddScoped<ILoggerService, LoggerService>();
+            builder.Services.AddScoped<ILoggerRepository, LoggerRepository>();
 
             builder.Services.AddTransient<ITemplateService, TemplateService>();
             builder.Services.AddTransient<ITemplateRepository, TemplateRepository>();
-
             builder.Services.AddTransient<ITriggerService, TriggerService>();
             builder.Services.AddTransient<ITriggerRepository, TriggerRepository>();
 
             // REALTIME
             builder.Services.AddTransient<INotificationService, NotificationService>();
             builder.Services.AddTransient<INotificationRepository, NotificationRepository>();
-
             builder.Services.AddTransient<IChatService, ChatService>();
             builder.Services.AddTransient<IChatRepository, ChatRepository>();
-
-            // DASHBOARD
-            // builder.Services.AddTransient<IDashboardService, DashboardService>();
-            // builder.Services.AddTransient<IDashboardRepository, DashboardRepository>();
 
             // Handlers
             builder.Services.AddTransient<SmsHandler>();
@@ -74,8 +82,14 @@ namespace api_infor_cell.src.Configuration
             );
             builder.Services.AddSingleton(new Cloudinary(account));
 
-            // SignalR — já incluído no ASP.NET Core, sem NuGet extra
+            // SignalR
             builder.Services.AddSignalR();
+
+            // LoggerActionFilter — grava log automaticamente no final de cada requisição
+            builder.Services.AddScoped<LoggerActionFilter>();
+            
+            // Work
+            builder.Services.AddHostedService<FinancialWork>();
         }
     }
 }

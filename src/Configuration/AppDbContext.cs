@@ -37,6 +37,13 @@ namespace api_infor_cell.src.Configuration
         public IMongoCollection<ProfileUser> ProfileUsers => Database.GetCollection<ProfileUser>("profile_users");
         #endregion
 
+        #region FINANCIAL
+        public IMongoCollection<PaymentMethod> PaymentMethods => Database.GetCollection<PaymentMethod>("payment_methods");
+        public IMongoCollection<AccountReceivable> AccountsReceivable => Database.GetCollection<AccountReceivable>("accounts_receivable");
+        public IMongoCollection<AccountPayable> AccountsPayable => Database.GetCollection<AccountPayable>("accounts_payable"); 
+        public IMongoCollection<ChartOfAccounts> ChartOfAccounts => Database.GetCollection<ChartOfAccounts>("chart_of_accounts");
+        #endregion
+
         #region SETTINGS
         public IMongoCollection<Logger> Loggers => Database.GetCollection<Logger>("loggers");
         public IMongoCollection<Count> Counts => Database.GetCollection<Count>("counts");

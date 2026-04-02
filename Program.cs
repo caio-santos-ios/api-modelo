@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using api_infor_cell.src.Configuration;
+using api_infor_cell.src.Filters;
 using api_infor_cell.src.Hubs;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,6 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.AddBuilderConfiguration();
 builder.AddContext();
 builder.AddBuilderServices();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -38,6 +40,7 @@ builder.Services.AddAuthentication(options =>
         )
     };
 
+    // SignalR passa o token via query string (?access_token=...)
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -46,7 +49,8 @@ builder.Services.AddAuthentication(options =>
             var path        = context.HttpContext.Request.Path;
 
             if (!string.IsNullOrEmpty(accessToken) &&
-                (path.StartsWithSegments("/hubs/notifications") || path.StartsWithSegments("/hubs/chat")))
+                (path.StartsWithSegments("/hubs/notifications") ||
+                 path.StartsWithSegments("/hubs/chat")))
             {
                 context.Token = accessToken;
             }
@@ -56,7 +60,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddControllers()
+// Registra o filtro como Scoped (necessário para injeção de dependência)
+builder.Services.AddScoped<LoggerActionFilter>();
+
+builder.Services.AddControllers(options =>
+{
+    // Aplica o LoggerActionFilter globalmente em todos os controllers
+    options.Filters.Add<LoggerActionFilter>();
+})
 .ConfigureApiBehaviorOptions(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -87,12 +98,12 @@ builder.Services.AddSwaggerGen(c =>
 
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        Name        = "Authorization",
-        Type        = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-        In          = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Scheme      = "Bearer",
+        Name         = "Authorization",
+        Type         = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        In           = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Scheme       = "Bearer",
         BearerFormat = "JWT",
-        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+        Description  = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
     });
 
     c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
@@ -111,17 +122,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-var allowedOrigins = (Environment.GetEnvironmentVariable("ALLOWED_ORIGINS") ?? "http://localhost:3000")
-    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+var allowedOrigins = (Environment.GetEnvironmentVariable("ALLOWED_ORIGINS") ?? "http://localhost:3000").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AppPolicy", policy =>
         policy
-            .WithOrigins(allowedOrigins)   
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials());           
+            .AllowCredentials());
 });
 
 builder.Services.AddAuthorization();
@@ -139,8 +149,7 @@ app.UseHttpsRedirection();
 app.UseCors("AppPolicy");
 
 var uploadPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads");
-if (!Directory.Exists(uploadPath))
-    Directory.CreateDirectory(uploadPath);
+if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
 
 app.UseStaticFiles();
 app.UseAuthentication();

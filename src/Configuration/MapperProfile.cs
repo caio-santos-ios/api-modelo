@@ -16,6 +16,17 @@ namespace api_infor_cell.src.Configuration
             CreateMap<CreateProfileUserDTO, ProfileUser>().ReverseMap();
             CreateMap<UpdateProfileUserDTO, ProfileUser>().ReverseMap();
             #endregion
+
+            #region FINANCIAL
+            CreateMap<CreateAccountReceivableDTO, AccountReceivable>().ReverseMap();
+            CreateMap<UpdateAccountReceivableDTO, AccountReceivable>().ReverseMap();
+
+            CreateMap<CreateAccountPayableDTO, AccountPayable>().ReverseMap();
+            CreateMap<UpdateAccountPayableDTO, AccountPayable>().ReverseMap();
+
+            CreateMap<CreatePaymentMethodDTO, PaymentMethod>().ReverseMap();
+            CreateMap<UpdatePaymentMethodDTO, PaymentMethod>().ReverseMap();
+            #endregion
             
             #region SETTINGS
             CreateMap<CreateLoggerDTO, Logger>().ReverseMap();

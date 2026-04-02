@@ -16,6 +16,7 @@ namespace api_infor_cell.src.Controllers
         {
             string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var response = await service.GetByUserIdAsync(userId!, limit);
+            
             return StatusCode(response.StatusCode, new { response.Result });
         }
 

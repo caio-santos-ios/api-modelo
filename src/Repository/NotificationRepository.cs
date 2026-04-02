@@ -30,7 +30,7 @@ namespace api_infor_cell.src.Repository
 
                 var results = await context.Notifications.Aggregate<BsonDocument>(pipeline).ToListAsync();
                 var list = results.Select(d => BsonSerializer.Deserialize<dynamic>(d)).ToList();
-                return new(list);
+                return new(list, 200, "Notificações listadas com sucesso");
             }
             catch { return new(null, 500, "Erro ao buscar notificações."); }
         }
@@ -39,8 +39,7 @@ namespace api_infor_cell.src.Repository
         {
             try
             {
-                long count = await context.Notifications
-                    .CountDocumentsAsync(x => x.UserId == userId && !x.Read && !x.Deleted);
+                long count = await context.Notifications.CountDocumentsAsync(x => x.UserId == userId && !x.Read && !x.Deleted);
                 return new((int)count);
             }
             catch { return new(0); }

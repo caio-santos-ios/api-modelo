@@ -2,7 +2,6 @@ using api_infor_cell.src.Configuration;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
-using api_infor_cell.src.Shared.DTOs;
 using api_infor_cell.src.Shared.Utils;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -10,10 +9,10 @@ using MongoDB.Driver;
 
 namespace api_infor_cell.src.Repository
 {
-    public class LoggerRepository(AppDbContext context) : ILoggerRepository
+    public class AccountPayableRepository(AppDbContext context) : IAccountPayableRepository
     {
         #region READ
-        public async Task<ResponseApi<List<dynamic>>> GetAllAsync(PaginationUtil<Logger> pagination)
+        public async Task<ResponseApi<List<dynamic>>> GetAllAsync(PaginationUtil<Models.AccountPayable> pagination)
         {
             try
             {
@@ -23,30 +22,26 @@ namespace api_infor_cell.src.Repository
                     new("$sort", pagination.PipelineSort),
                     new("$skip", pagination.Skip),
                     new("$limit", pagination.Limit),
-                    
-                    MongoUtil.Lookup("users", ["$createdBy"], ["$_id"], "_user", [["deleted", false]], 1),
 
-                    new("$addFields", new BsonDocument 
+                    MongoUtil.Lookup("payment_methods", ["$paymentMethodId"], ["$_id"], "_paymentMethod", [["deleted", false]], 1),
+                    MongoUtil.Lookup("suppliers", ["$supplierId"], ["$_id"], "_supplier", [["deleted", false]], 1),
+
+                    new("$addFields", new BsonDocument
                     {
-                        {"userName", MongoUtil.First("_user.name")}
+                        {"id", new BsonDocument("$toString", "$_id")},
+                        {"paymentMethodName", MongoUtil.First("_paymentMethod.name")},
+                        {"supplierName", MongoUtil.First("_supplier.corporateName")},
                     }),
-
                     new("$project", new BsonDocument
                     {
                         {"_id", 0},
-                        {"id", new BsonDocument("$toString", "$_id")},
-                        {"method", 1},
-                        {"message", 1},
-                        {"statusCode", 1},
-                        {"audit", 1},
-                        {"path", 1},
-                        {"createdAt", 1},
-                        {"userName", 1},
+                        {"_paymentMethod", 0},
+                        {"_supplier", 0},
                     }),
                     new("$sort", pagination.PipelineSort),
                 };
 
-                List<BsonDocument> results = await context.Loggers.Aggregate<BsonDocument>(pipeline).ToListAsync();
+                List<BsonDocument> results = await context.AccountsPayable.Aggregate<BsonDocument>(pipeline).ToListAsync();
                 List<dynamic> list = results.Select(doc => BsonSerializer.Deserialize<dynamic>(doc)).ToList();
                 return new(list);
             }
@@ -55,6 +50,7 @@ namespace api_infor_cell.src.Repository
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
+
         public async Task<ResponseApi<dynamic?>> GetByIdAggregateAsync(string id)
         {
             try
@@ -73,28 +69,32 @@ namespace api_infor_cell.src.Repository
                     }),
                 ];
 
-                BsonDocument? response = await context.Loggers.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+                BsonDocument? response = await context.AccountsPayable.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
                 dynamic? result = response is null ? null : BsonSerializer.Deserialize<dynamic>(response);
-                return result is null ? new(null, 404, "Log não encontrado") : new(result);
+                return result is null ? new(null, 404, "Conta a pagar não encontrada") : new(result);
             }
             catch
             {
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
-        public async Task<ResponseApi<Logger?>> GetByIdAsync(string id)
+
+        public async Task<ResponseApi<Models.AccountPayable?>> GetByIdAsync(string id)
         {
             try
             {
-                Logger? logger = await context.Loggers.Find(x => x.Id == id && !x.Deleted).FirstOrDefaultAsync();
-                return new(logger);
+                Models.AccountPayable? accountPayable = await context.AccountsPayable
+                    .Find(x => x.Id == id && !x.Deleted)
+                    .FirstOrDefaultAsync();
+                return new(accountPayable);
             }
             catch
             {
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
-        public async Task<int> GetCountDocumentsAsync(PaginationUtil<Logger> pagination)
+
+        public async Task<int> GetCountDocumentsAsync(PaginationUtil<Models.AccountPayable> pagination)
         {
             List<BsonDocument> pipeline = new()
             {
@@ -111,31 +111,18 @@ namespace api_infor_cell.src.Repository
                 new("$sort", pagination.PipelineSort),
             };
 
-            List<BsonDocument> results = await context.Loggers.Aggregate<BsonDocument>(pipeline).ToListAsync();
+            List<BsonDocument> results = await context.AccountsPayable.Aggregate<BsonDocument>(pipeline).ToListAsync();
             return results.Select(doc => BsonSerializer.Deserialize<dynamic>(doc)).Count();
         }
         #endregion
+
         #region CREATE
-        public async Task<ResponseApi<Logger?>> CreateAsync(Logger logger)
+        public async Task<ResponseApi<Models.AccountPayable?>> CreateAsync(Models.AccountPayable accountPayable)
         {
             try
             {
-                await context.Loggers.InsertOneAsync(logger);
-                return new(logger, 201, "Log criado com sucesso");
-            }
-            catch
-            {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");   
-            }
-        }
-        #endregion
-        #region UPDATE
-        public async Task<ResponseApi<Logger?>> UpdateAsync(Logger logger)
-        {
-            try
-            {
-                await context.Loggers.ReplaceOneAsync(x => x.Id == logger.Id, logger);
-                return new(logger, 200, "Log atualizado com sucesso");
+                await context.AccountsPayable.InsertOneAsync(accountPayable);
+                return new(accountPayable, 201, "Conta a pagar criada com sucesso");
             }
             catch
             {
@@ -143,20 +130,51 @@ namespace api_infor_cell.src.Repository
             }
         }
         #endregion
-        #region DELETE
-        public async Task<ResponseApi<Logger>> DeleteAsync(DeleteDTO request)
+
+        #region UPDATE
+        public async Task<ResponseApi<Models.AccountPayable?>> UpdateAsync(Models.AccountPayable accountPayable)
         {
             try
             {
-                Logger? logger = await context.Loggers.Find(x => x.Id == request.Id && !x.Deleted).FirstOrDefaultAsync();
-                if(logger is null) return new(null, 404, "Log não encontrado");
-                logger.Deleted = true;
-                logger.DeletedAt = DateTime.UtcNow;
-                logger.DeletedBy = request.DeletedBy;
+                await context.AccountsPayable.ReplaceOneAsync(x => x.Id == accountPayable.Id, accountPayable);
+                return new(accountPayable, 200, "Conta a pagar atualizada com sucesso");
+            }
+            catch
+            {
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+            }
+        }
 
-                await context.Loggers.ReplaceOneAsync(x => x.Id == request.Id, logger);
+        public async Task<ResponseApi<Models.AccountPayable?>> PayAsync(Models.AccountPayable accountPayable)
+        {
+            try
+            {
+                await context.AccountsPayable.ReplaceOneAsync(x => x.Id == accountPayable.Id, accountPayable);
+                return new(accountPayable, 200, "Título baixado com sucesso");
+            }
+            catch
+            {
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+            }
+        }
+        #endregion
 
-                return new(logger, 204, "Log excluído com sucesso");
+        #region DELETE
+        public async Task<ResponseApi<Models.AccountPayable>> DeleteAsync(string id)
+        {
+            try
+            {
+                Models.AccountPayable? accountPayable = await context.AccountsPayable
+                    .Find(x => x.Id == id && !x.Deleted)
+                    .FirstOrDefaultAsync();
+
+                if (accountPayable is null) return new(null, 404, "Conta a pagar não encontrada");
+
+                accountPayable.Deleted = true;
+                accountPayable.DeletedAt = DateTime.UtcNow;
+
+                await context.AccountsPayable.ReplaceOneAsync(x => x.Id == id, accountPayable);
+                return new(accountPayable, 204, "Conta a pagar excluída com sucesso");
             }
             catch
             {

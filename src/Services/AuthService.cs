@@ -89,7 +89,7 @@ namespace api_infor_cell.src.Services
                     Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                     CodeAccess = access.CodeAccess,
                     CodeAccessExpiration = access.CodeAccessExpiration,
-                    ValidatedAccess = false,
+                    ValidatedAccess = true,
                     Modules = [],
                     Admin = true,
                     Master = false,

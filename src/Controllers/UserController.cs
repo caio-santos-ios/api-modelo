@@ -18,13 +18,6 @@ namespace api_infor_cell.src.Controllers
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             PaginationApi<List<dynamic>> response = await service.GetAllAsync(new(Request.Query), userId);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users",
-                Method = "GET",
-                Message = response.Message ?? "Usuários listados com sucesso",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
         
@@ -33,13 +26,6 @@ namespace api_infor_cell.src.Controllers
         public async Task<IActionResult> GetByIdAsync(string id)
         {
             ResponseApi<dynamic?> response = await service.GetByIdAggregateAsync(id);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users/{id}",
-                Method = "GET",
-                Message = response.Message ?? "Usuário obtido com sucesso",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
@@ -50,14 +36,6 @@ namespace api_infor_cell.src.Controllers
             if (user == null) return BadRequest("Dados inválidos.");
 
             ResponseApi<User?> response = await service.CreateAsync(user);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users",
-                Method = "POST",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
-
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
         
@@ -68,14 +46,6 @@ namespace api_infor_cell.src.Controllers
             if (user == null) return BadRequest("Dados inválidos.");
 
             ResponseApi<User?> response = await service.UpdateAsync(user);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users",
-                Method = "PUT",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
-
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
         
@@ -85,14 +55,6 @@ namespace api_infor_cell.src.Controllers
             if (user == null) return BadRequest("Dados inválidos.");
 
             ResponseApi<User?> response = await service.ResendCodeAccessAsync(user);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users/code-access",
-                Method = "PUT",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
-
             return response.IsSuccess ? Ok(new{response.Message}) : BadRequest(new{response.Message});
         }
         
@@ -102,13 +64,6 @@ namespace api_infor_cell.src.Controllers
             if (user == null) return BadRequest("Dados inválidos.");
 
             ResponseApi<User?> response = await service.ValidatedAccessAsync(user.CodeAccess);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users/confirm-access",
-                Method = "PUT",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
             return response.IsSuccess ? Ok(new{response.Message}) : BadRequest(new{response.Message});
         }
 
@@ -117,13 +72,6 @@ namespace api_infor_cell.src.Controllers
         public async Task<IActionResult> SavePhotoProfileAsync([FromForm] SaveUserPhotoDTO user)
         {
             ResponseApi<User?> response = await service.SavePhotoProfileAsync(user);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users/profile-photo",
-                Method = "PUT",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
         
@@ -132,13 +80,6 @@ namespace api_infor_cell.src.Controllers
         public async Task<IActionResult> RemovePhotoProfileAsync(string id)
         {
             ResponseApi<User?> response = await service.RemovePhotoProfileAsync(id);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users/remove-profile-photo/{id}",
-                Method = "DELETE",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
             return response.IsSuccess ? Ok(new{response.Message}) : BadRequest(new{response.Message});
         }
         
@@ -149,13 +90,6 @@ namespace api_infor_cell.src.Controllers
             string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             ResponseApi<dynamic?> response = await service.GetLoggedAsync(userId!);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users/logged",
-                Method = "GET",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
 
@@ -165,13 +99,6 @@ namespace api_infor_cell.src.Controllers
         {
             string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ResponseApi<User> response = await service.DeleteAsync(new () { Id = id, DeletedBy = userId! });
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/users/{id}",
-                Method = "DELETE",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode 
-            });
             return StatusCode(response.StatusCode, new { response.Message });
         }
     }

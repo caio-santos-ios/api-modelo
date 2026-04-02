@@ -24,7 +24,8 @@ namespace api_infor_cell.src.Controllers
                 Path = "/api/auth/login",
                 Method = "POST",
                 Message = response.Message ?? "",
-                StatusCode = response.StatusCode
+                StatusCode = response.StatusCode,
+                CreatedBy = response.Data is not null ? response.Data.Id : ""
             });
             return StatusCode(response.StatusCode, new { response.Result });
         }
@@ -41,7 +42,8 @@ namespace api_infor_cell.src.Controllers
                 Path = "/api/auth/register",
                 Method = "POST",
                 Message = response.Message ?? "",
-                StatusCode = response.StatusCode
+                StatusCode = response.StatusCode,
+                CreatedBy = response.Data is not null ? response.Data.Id : ""
             });
             return StatusCode(response.StatusCode, new { response.Result });
         }
@@ -53,13 +55,6 @@ namespace api_infor_cell.src.Controllers
             if (body == null) return BadRequest("Dados inválidos");
 
             ResponseApi<dynamic> response = await service.ConfirmAccountAsync(body);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/auth/confirm-account",
-                Method = "POST",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
@@ -70,13 +65,6 @@ namespace api_infor_cell.src.Controllers
             if (body == null) return BadRequest("Dados inválidos");
 
             ResponseApi<dynamic> response = await service.NewCodeConfirmAsync(body);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/auth/new-code-confirm",
-                Method = "POST",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
@@ -88,13 +76,6 @@ namespace api_infor_cell.src.Controllers
             if (request == null) return BadRequest("Dados inválidos");
 
             ResponseApi<User> response = await service.ResetPasswordAsync(request);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/auth/reset-password",
-                Method = "PUT",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
@@ -105,13 +86,6 @@ namespace api_infor_cell.src.Controllers
             if (request == null) return BadRequest("Dados inválidos");
 
             ResponseApi<User> response = await service.RequestForgotPasswordAsync(request);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/auth/request-forgot-password",
-                Method = "PUT",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
 
@@ -122,13 +96,6 @@ namespace api_infor_cell.src.Controllers
             if (request == null) return BadRequest("Dados inválidos");
 
             ResponseApi<User> response = await service.ResetPassordForgotAsync(request);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/auth/reset-forgot-password",
-                Method = "PUT",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
     }

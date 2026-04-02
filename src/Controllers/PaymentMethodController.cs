@@ -55,9 +55,7 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<PaymentMethod?> response = await service.UpdateAsync(body);
 
             return StatusCode(response.StatusCode, new { response.Result });
-        }
-
-        
+        }        
         
         [Authorize]
         [HttpDelete("{id}")]

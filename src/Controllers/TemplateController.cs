@@ -17,13 +17,6 @@ namespace api_infor_cell.src.Controllers
         public async Task<IActionResult> GetAll()
         {
             PaginationApi<List<dynamic>> response = await service.GetAllAsync(new(Request.Query));
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/templates",
-                Method = "GET",
-                Message = response.Message ?? "Templates listados com sucesso",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
@@ -32,13 +25,6 @@ namespace api_infor_cell.src.Controllers
         public async Task<IActionResult> GetByIdAsync(string id)
         {
             ResponseApi<dynamic?> response = await service.GetByIdAggregateAsync(id);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/templates/{id}",
-                Method = "GET",
-                Message = response.Message ?? "Perfil de usuário obtido com sucesso",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
@@ -47,13 +33,6 @@ namespace api_infor_cell.src.Controllers
         public async Task<IActionResult> GetSelect()
         {
             ResponseApi<List<dynamic>> response = await service.GetSelectAsync(new(Request.Query));
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/templates/select",
-                Method = "GET",
-                Message = response.Message ?? "Templates listados com sucesso",
-                StatusCode = response.StatusCode
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
 
@@ -64,14 +43,6 @@ namespace api_infor_cell.src.Controllers
             if (body == null) return BadRequest("Dados inválidos.");
 
             ResponseApi<Template?> response = await service.CreateAsync(body);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/templates",
-                Method = "POST",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
-
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
@@ -82,14 +53,6 @@ namespace api_infor_cell.src.Controllers
             if (body == null) return BadRequest("Dados inválidos.");
 
             ResponseApi<Template?> response = await service.UpdateAsync(body);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/templates",
-                Method = "PUT",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
-
             return StatusCode(response.StatusCode, new { response.Result });
         }    
         
@@ -102,14 +65,6 @@ namespace api_infor_cell.src.Controllers
             body.CreatedBy = userId!;
 
             ResponseApi<Template?> response = await service.SendAsync(body);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/templates/send-mail",
-                Method = "PUT",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
-
             return StatusCode(response.StatusCode, new { response.Result });
         }    
         
@@ -119,14 +74,6 @@ namespace api_infor_cell.src.Controllers
         {
             string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ResponseApi<Template> response = await service.DeleteAsync(new () { Id = id, DeletedBy = userId! });
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/templates/{id}",
-                Method = "DELETE",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode
-            });
-
             return StatusCode(response.StatusCode, new { response.Result });
         }
     }

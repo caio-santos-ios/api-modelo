@@ -45,9 +45,6 @@ namespace api_infor_cell.src.Controllers
             return StatusCode(response.StatusCode, new { response.Result });
         }
 
-        /// <summary>
-        /// Baixa um título (recebimento total, parcial ou cancelamento)
-        /// </summary>
         [Authorize]
         [HttpPut("pay")]
         public async Task<IActionResult> Pay([FromBody] PayAccountReceivableDTO body)

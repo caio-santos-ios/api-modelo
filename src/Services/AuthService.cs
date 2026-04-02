@@ -36,8 +36,8 @@ namespace api_infor_cell.src.Services
 
                     await userRepository.UpdateAsync(res.Data);
 
-                    // await mailHandler.SendMailAsync(request.Email, "Confirmar Conta", await mailTemplate.NewLinkCodeConfirmAccount(res.Data.Name, access.CodeAccess));
-                    // return new(null, 400, "Conta não confirmada. Verifique seu e-mail.");
+                    await mailHandler.SendMailAsync(request.Email, "Confirmar Conta", await mailTemplate.NewLinkCodeConfirmAccount(res.Data.Name, access.CodeAccess));
+                    return new(null, 400, "Conta não confirmada. Verifique seu e-mail.");
                 } 
                 if (user.Blocked) return new(null, 400, "Conta bloqueada. Entre em contato com o suporte.");
 
@@ -89,7 +89,7 @@ namespace api_infor_cell.src.Services
                     Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                     CodeAccess = access.CodeAccess,
                     CodeAccessExpiration = access.CodeAccessExpiration,
-                    ValidatedAccess = true,
+                    ValidatedAccess = false,
                     Modules = [],
                     Admin = true,
                     Master = false,

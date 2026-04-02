@@ -80,7 +80,7 @@ namespace api_infor_cell.src.Services
                     Modules = profile.Data?.Modules ?? [],
                     Admin = request.Admin,
                     Blocked = request.Blocked,
-                    ProfileUserId = request.ProfileUserId
+                    ProfileUserId = request.ProfileUserId,
                 };
 
                 ResponseApi<User?> response = await userRepository.CreateAsync(user);

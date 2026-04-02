@@ -126,7 +126,7 @@ namespace api_infor_cell.src.Workers
                         AmountPaid       = 0,
                         DueDate          = nextDueDate,
                         IssueDate        = now,
-                        Status           = "open",
+                        Status           = "Em Aberto",
                         Notes            = origin.Notes,
                         ChartOfAccountId = origin.ChartOfAccountId,
                         IsRecurrent      = false,

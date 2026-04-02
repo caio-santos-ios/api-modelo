@@ -15,14 +15,14 @@ namespace api_infor_cell.src.Services
         {
             try
             {
-                PaginationUtil<Models.AccountPayable> pagination = new(request.QueryParams);
+                PaginationUtil<AccountPayable> pagination = new(request.QueryParams);
                 ResponseApi<List<dynamic>> accountsPayable = await repository.GetAllAsync(pagination);
                 int count = await repository.GetCountDocumentsAsync(pagination);
                 return new(accountsPayable.Data, count, pagination.PageNumber, pagination.PageSize);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -34,67 +34,67 @@ namespace api_infor_cell.src.Services
                 if (accountPayable.Data is null) return new(null, 404, "Conta a pagar não encontrada");
                 return new(accountPayable.Data);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion
 
         #region CREATE
-        public async Task<ResponseApi<Models.AccountPayable?>> CreateAsync(CreateAccountPayableDTO request)
+        public async Task<ResponseApi<AccountPayable?>> CreateAsync(CreateAccountPayableDTO request)
         {
             try
             {
-                Models.AccountPayable accountPayable = _mapper.Map<Models.AccountPayable>(request);
+                AccountPayable accountPayable = _mapper.Map<AccountPayable>(request);
 
                 accountPayable.Code = await countHandler.NextCountAsync("account-payable");
-                accountPayable.Status = "open";
+                accountPayable.Status = "Em Aberto";
                 accountPayable.AmountPaid = 0;
 
-                ResponseApi<Models.AccountPayable?> response = await repository.CreateAsync(accountPayable);
+                ResponseApi<AccountPayable?> response = await repository.CreateAsync(accountPayable);
                 if (response.Data is null) return new(null, 400, "Falha ao criar conta a pagar.");
                 return new(response.Data, 201, "Conta a pagar criada com sucesso.");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion
 
         #region UPDATE
-        public async Task<ResponseApi<Models.AccountPayable?>> UpdateAsync(UpdateAccountPayableDTO request)
+        public async Task<ResponseApi<AccountPayable?>> UpdateAsync(UpdateAccountPayableDTO request)
         {
             try
             {
-                ResponseApi<Models.AccountPayable?> existing = await repository.GetByIdAsync(request.Id);
+                ResponseApi<AccountPayable?> existing = await repository.GetByIdAsync(request.Id);
                 if (existing.Data is null) return new(null, 404, "Conta a pagar não encontrada");
 
-                Models.AccountPayable accountPayable = _mapper.Map<Models.AccountPayable>(request);
+                AccountPayable accountPayable = _mapper.Map<AccountPayable>(request);
                 accountPayable.UpdatedAt = DateTime.UtcNow;
                 accountPayable.UpdatedBy = request.UpdatedBy;
-                // Preserva campos gerados/controlados
                 accountPayable.Code = existing.Data.Code;
                 accountPayable.Status = existing.Data.Status;
                 accountPayable.AmountPaid = existing.Data.AmountPaid;
                 accountPayable.PaidAt = existing.Data.PaidAt;
+                accountPayable.CreatedAt = existing.Data.CreatedAt;
 
-                ResponseApi<Models.AccountPayable?> response = await repository.UpdateAsync(accountPayable);
+                ResponseApi<AccountPayable?> response = await repository.UpdateAsync(accountPayable);
                 if (!response.IsSuccess) return new(null, 400, "Falha ao atualizar conta a pagar");
                 return new(response.Data, 200, "Conta a pagar atualizada com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
-        public async Task<ResponseApi<Models.AccountPayable?>> PayAsync(PayAccountPayableDTO request)
+        public async Task<ResponseApi<AccountPayable?>> PayAsync(PayAccountPayableDTO request)
         {
             try
             {
-                ResponseApi<Models.AccountPayable?> existing = await repository.GetByIdAsync(request.Id);
+                ResponseApi<AccountPayable?> existing = await repository.GetByIdAsync(request.Id);
                 if (existing.Data is null) return new(null, 404, "Conta a pagar não encontrada");
 
                 if (existing.Data.Status == "paid")
@@ -107,34 +107,33 @@ namespace api_infor_cell.src.Services
                 existing.Data.PaidAt = request.PaidAt;
                 existing.Data.UpdatedAt = DateTime.UtcNow;
 
-                // Pagamento parcial automático se valor < total
                 existing.Data.Status = (request.AmountPaid < existing.Data.Amount && request.Status != "cancelled")
                     ? "partial"
                     : request.Status;
 
-                ResponseApi<Models.AccountPayable?> response = await repository.PayAsync(existing.Data);
+                ResponseApi<AccountPayable?> response = await repository.PayAsync(existing.Data);
                 if (!response.IsSuccess) return new(null, 400, "Falha ao baixar título");
                 return new(response.Data, 200, "Título baixado com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion
 
         #region DELETE
-        public async Task<ResponseApi<Models.AccountPayable>> DeleteAsync(string id)
+        public async Task<ResponseApi<AccountPayable>> DeleteAsync(string id)
         {
             try
             {
-                ResponseApi<Models.AccountPayable> response = await repository.DeleteAsync(id);
+                ResponseApi<AccountPayable> response = await repository.DeleteAsync(id);
                 if (!response.IsSuccess) return new(null, 400, response.Message);
                 return new(null, 204, "Excluída com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion

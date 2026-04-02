@@ -28,9 +28,9 @@ namespace api_infor_cell.src.Services
 
                 return new(response);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Falha ao buscar Plano de Contas");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         public async Task<ResponseApi<List<dynamic>>> GetSelectAsync(GetAllDTO request)
@@ -43,9 +43,9 @@ namespace api_infor_cell.src.Services
 
                 return new(list.Data);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Falha ao buscar Plano de Contas");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -56,9 +56,9 @@ namespace api_infor_cell.src.Services
                 dynamic? obj = (await repository.GetByIdAggregateAsync(id)).Data;
                 return new(obj);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Falha ao buscar Conta");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         
@@ -73,9 +73,9 @@ namespace api_infor_cell.src.Services
                 ResponseApi<ChartOfAccounts?> response = await repository.CreateAsync(chartOfAccounts);
                 return new(response.Data, response.StatusCode, "Conta criada com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Falha ao criar Conta");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -100,9 +100,9 @@ namespace api_infor_cell.src.Services
                 ResponseApi<ChartOfAccounts?> response = await repository.UpdateAsync(existingAccount.Data);
                 return new(response.Data, response.StatusCode, "Conta atualizada com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Falha ao atualizar Conta");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -122,9 +122,9 @@ namespace api_infor_cell.src.Services
                 ResponseApi<ChartOfAccounts> response = await repository.DeleteAsync(id);
                 return new(response.Data, response.StatusCode, "Conta excluída com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Falha ao excluir Conta");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -135,9 +135,9 @@ namespace api_infor_cell.src.Services
                 ResponseApi<List<dynamic>> response = await repository.GetTreeAsync(planId, companyId);
                 return new(response.Data);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Falha ao buscar árvore de contas");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
     }

@@ -4,13 +4,6 @@ namespace api_infor_cell.src.Interfaces
 {
     public interface IDreRepository
     {
-        Task<ResponseApi<dynamic>> GenerateAsync(
-            string planId,
-            string companyId,
-            string storeId,
-            DateTime startDate,
-            DateTime endDate,
-            string regime // "caixa" | "competencia"
-        );
+        Task<ResponseApi<dynamic>> GenerateAsync(DateTime startDate, DateTime endDate, string regime);
     }
 }

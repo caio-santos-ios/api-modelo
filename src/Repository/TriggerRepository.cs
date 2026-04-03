@@ -37,7 +37,7 @@ namespace api_infor_cell.src.Repository
             }
             catch
             {
-                return new(null, 500, "Falha ao buscar Triggers.");
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");   
             }
         }
 
@@ -58,7 +58,7 @@ namespace api_infor_cell.src.Repository
             }
             catch
             {
-                return new(null, 500, "Falha ao buscar Trigger.");
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");   
             }
         }
 
@@ -71,7 +71,7 @@ namespace api_infor_cell.src.Repository
             }
             catch
             {
-                return new(null, 500, "Falha ao buscar Trigger.");
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");   
             }
         }
 
@@ -88,8 +88,7 @@ namespace api_infor_cell.src.Repository
                     {
                         { "_id", 0 },
                         { "id", 1 },
-                        { "code", 1 },
-                        { "name", 1 },
+                        { "code", 1 }
                     }),
                     new("$sort", pagination.PipelineSort),
                 };
@@ -100,7 +99,7 @@ namespace api_infor_cell.src.Repository
             }
             catch
             {
-                return new(null, 500, "Falha ao buscar Triggers.");
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");   
             }
         }
 
@@ -129,7 +128,7 @@ namespace api_infor_cell.src.Repository
             }
             catch
             {
-                return new(null, 500, "Falha ao criar Trigger.");
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");   
             }
         }
         #endregion
@@ -144,7 +143,7 @@ namespace api_infor_cell.src.Repository
             }
             catch
             {
-                return new(null, 500, "Falha ao atualizar Trigger.");
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");   
             }
         }
         #endregion
@@ -166,7 +165,7 @@ namespace api_infor_cell.src.Repository
             }
             catch
             {
-                return new(null, 500, "Falha ao excluir Trigger.");
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");   
             }
         }
         #endregion

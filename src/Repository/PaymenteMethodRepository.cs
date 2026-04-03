@@ -162,7 +162,7 @@ namespace api_infor_cell.src.Repository
             {
                 await context.PaymentMethods.ReplaceOneAsync(x => x.Id == paymentMethod.Id, paymentMethod);
 
-                return new(paymentMethod, 201, "Forma de pagamento atualizada com sucesso");
+                return new(paymentMethod, 200, "Forma de pagamento atualizada com sucesso");
             }
             catch
             {

@@ -162,7 +162,7 @@ namespace api_infor_cell.src.Repository
             {
                 await context.ProfileUsers.ReplaceOneAsync(x => x.Id == profileUser.Id, profileUser);
 
-                return new(profileUser, 201, "Perfil de Usuário atualizada com sucesso");
+                return new(profileUser, 200, "Perfil de Usuário atualizada com sucesso");
             }
             catch
             {

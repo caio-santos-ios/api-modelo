@@ -17,10 +17,6 @@ namespace api_infor_cell.src.Controllers
             [FromQuery] string regime = "competencia"
         )
         {
-            string plan    = User.FindFirst("plan")?.Value    ?? string.Empty;
-            string company = User.FindFirst("company")?.Value ?? string.Empty;
-            string store   = User.FindFirst("store")?.Value   ?? string.Empty;
-
             if (!DateTime.TryParse(startDate, out DateTime start))
             {
                 return BadRequest(new { message = "Data inicial inválida" });
@@ -31,7 +27,7 @@ namespace api_infor_cell.src.Controllers
                 return BadRequest(new { message = "Data final inválida" });
             }
 
-            ResponseApi<dynamic?> response = await service.GenerateAsync(plan, company, store, start, end, regime);
+            ResponseApi<dynamic?> response = await service.GenerateAsync(start, end, regime);
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
     }

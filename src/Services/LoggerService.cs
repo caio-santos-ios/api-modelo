@@ -24,6 +24,21 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
+        public async Task<ResponseApi<dynamic?>> GetByIdAggregateAsync(string id)
+        {
+            try
+            {
+                ResponseApi<dynamic?> logger = await loggerRepository.GetByIdAggregateAsync(id);
+                if(logger.Data is null) return new(null, 404, "Log não encontrado");
+                return new(logger.Data);
+            }
+            catch
+            {
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+            }
+        }
+        #endregion
+
         #region CREATE
         public async Task<ResponseApi<Logger?>> CreateAsync(CreateLoggerDTO request)
         {
@@ -38,22 +53,6 @@ namespace api_infor_cell.src.Services
             catch
             {                
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde");
-            }
-        }
-        
-        #endregion
-        
-        public async Task<ResponseApi<dynamic?>> GetByIdAggregateAsync(string id)
-        {
-            try
-            {
-                ResponseApi<dynamic?> logger = await loggerRepository.GetByIdAggregateAsync(id);
-                if(logger.Data is null) return new(null, 404, "Usuário não encontrado");
-                return new(logger.Data);
-            }
-            catch
-            {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
         

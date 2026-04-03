@@ -52,13 +52,12 @@ namespace api_infor_cell.src.Services
                 accountReceivable.Code = await countHandler.NextCountAsync("account-receivable");
                 accountReceivable.Status = "Em Aberto";
                 accountReceivable.AmountPaid = 0;
-                accountReceivable.IssueDate = DateTime.UtcNow;
 
                 if(request.IsPaymented)
                 {
                     accountReceivable.AmountPaid = request.Amount;
                     accountReceivable.PaidAt = DateTime.UtcNow;
-                    accountReceivable.Status = "Pago";
+                    accountReceivable.Status = "Recebido";
                 }
 
                 ResponseApi<AccountReceivable?> response = await repository.CreateAsync(accountReceivable);
@@ -89,6 +88,7 @@ namespace api_infor_cell.src.Services
                 accountReceivable.AmountPaid = existing.Data.AmountPaid;
                 accountReceivable.PaidAt = existing.Data.PaidAt;
                 accountReceivable.CreatedAt = existing.Data.CreatedAt;
+                accountReceivable.CreatedBy = existing.Data.CreatedBy;
 
                 ResponseApi<AccountReceivable?> response = await repository.UpdateAsync(accountReceivable);
                 if (!response.IsSuccess) return new(null, 400, "Falha ao atualizar conta a receber");
@@ -115,7 +115,7 @@ namespace api_infor_cell.src.Services
                 existing.Data.PaidAt = request.PaidAt;
                 existing.Data.UpdatedAt = DateTime.UtcNow;
 
-                if((request.AmountPaid + existing.Data.AmountPaid) == existing.Data.Amount) 
+                if(existing.Data.AmountPaid == existing.Data.Amount) 
                 {
                     existing.Data.Status = "Recebido";
                 }
@@ -146,7 +146,7 @@ namespace api_infor_cell.src.Services
                 accountReceivable.Data.UpdatedAt = DateTime.UtcNow;
                 accountReceivable.Data.UpdatedBy = request.UpdatedBy;
 
-                ResponseApi<AccountReceivable?> response = await repository.PayAsync(accountReceivable.Data);
+                ResponseApi<AccountReceivable?> response = await repository.UpdateAsync(accountReceivable.Data);
                 if (!response.IsSuccess) return new(null, 400, "Falha ao cancelar título");
 
                 return new(response.Data, 200, "Título cancelado com sucesso");

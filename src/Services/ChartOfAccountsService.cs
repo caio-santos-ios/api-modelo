@@ -122,17 +122,5 @@ namespace api_infor_cell.src.Services
             }
         }
         #endregion
-        public async Task<ResponseApi<List<dynamic>>> GetTreeAsync(string planId, string companyId)
-        {
-            try
-            {
-                ResponseApi<List<dynamic>> response = await repository.GetTreeAsync(planId, companyId);
-                return new(response.Data);
-            }
-            catch(Exception ex)
-            {
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
-            }
-        }
     }
 }

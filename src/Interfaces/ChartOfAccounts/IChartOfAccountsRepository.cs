@@ -15,6 +15,5 @@ namespace api_infor_cell.src.Interfaces
         Task<ResponseApi<ChartOfAccounts?>> CreateAsync(ChartOfAccounts chartOfAccounts);
         Task<ResponseApi<ChartOfAccounts?>> UpdateAsync(ChartOfAccounts chartOfAccounts);
         Task<ResponseApi<ChartOfAccounts>> DeleteAsync(string id);
-        Task<ResponseApi<List<dynamic>>> GetTreeAsync(string planId, string companyId);
     }
 }

@@ -56,21 +56,13 @@ namespace api_infor_cell.src.Repository
         private static readonly HashSet<string> _gruposDespFin = new() { "desp_fin", "emp_div",  "jur_mul", "desc_conc", "tax_ban" };
         private static readonly HashSet<string> _gruposOutraDesp = new() { "outras",  "outras_esp" };
 
-        public async Task<ResponseApi<dynamic>> GenerateAsync(
-            string planId,
-            string companyId,
-            string storeId,
-            DateTime startDate,
-            DateTime endDate,
-            string regime)
+        public async Task<ResponseApi<dynamic>> GenerateAsync(DateTime startDate, DateTime endDate, string regime)
         {
             try
             {
-                string dateField = regime == "caixa" ? "paymentDate" : "dueDate";
+                string dateField = regime == "caixa" ? "paidAt" : "dueDate";
 
                 var accountsFilter = Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.And(
-                    Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.Eq("plan",    planId),
-                    Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.Eq("company", companyId),
                     Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.Eq("deleted", false),
                     Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.Ne("groupDRE", ""),
                     Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.Ne("groupDRE", BsonNull.Value),
@@ -108,9 +100,6 @@ namespace api_infor_cell.src.Repository
                     new("$match", new BsonDocument(extraMatch)
                     {
                         { "deleted",  false },
-                        { "plan",     planId },
-                        { "company",  companyId },
-                        { "store",    storeId },
                         { dateField,  new BsonDocument { { "$gte", startDate }, { "$lte", fimPeriodo } } }
                     }),
                     new("$group", new BsonDocument
@@ -326,9 +315,9 @@ namespace api_infor_cell.src.Repository
 
                 return new(result);
             }
-            catch (Exception ex)
+            catch
             {
-                return new(null, 500, $"Erro ao gerar DRE: {ex.Message}");
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
     }

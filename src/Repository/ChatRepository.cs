@@ -2,7 +2,6 @@ using api_infor_cell.src.Configuration;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
-using api_infor_cell.src.Shared.DTOs;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -11,7 +10,6 @@ namespace api_infor_cell.src.Repository
 {
     public class ChatRepository(AppDbContext context) : IChatRepository
     {
-        /// <summary>Gera um ID estável para a conversa entre dois usuários.</summary>
         private static string BuildConversationId(string a, string b)
         {
             var sorted = new[] { a, b }.OrderBy(x => x).ToArray();
@@ -102,16 +100,20 @@ namespace api_infor_cell.src.Repository
 
         public async Task MarkConversationAsReadAsync(string conversationId, string userId)
         {
-            var filter = Builders<ChatMessage>.Filter.And(
+            var msgFilter = Builders<ChatMessage>.Filter.And(
                 Builders<ChatMessage>.Filter.Eq(x => x.ConversationId, conversationId),
                 Builders<ChatMessage>.Filter.Eq(x => x.ReceiverId,     userId),
                 Builders<ChatMessage>.Filter.Eq(x => x.Read,           false)
             );
-            var update = Builders<ChatMessage>.Update
+            var msgUpdate = Builders<ChatMessage>.Update
                 .Set(x => x.Read,   true)
                 .Set(x => x.ReadAt, DateTime.UtcNow);
 
-            await context.ChatMessages.UpdateManyAsync(filter, update);
+            await context.ChatMessages.UpdateManyAsync(msgFilter, msgUpdate);
+
+            var convFilter = Builders<Conversation>.Filter.Eq(x => x.ConversationId, conversationId);
+            var convUpdate = Builders<Conversation>.Update.Set(x => x.UnreadCount, 0);
+            await context.Conversations.UpdateOneAsync(convFilter, convUpdate);
         }
 
         public async Task<ResponseApi<int>> GetUnreadCountAsync(string userId)

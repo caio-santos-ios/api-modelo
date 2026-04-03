@@ -216,57 +216,5 @@ namespace api_infor_cell.src.Repository
             }
         }
         #endregion
-
-        #region TREE
-        public async Task<ResponseApi<List<dynamic>>> GetTreeAsync(string planId, string companyId)
-        {
-            try
-            {
-                FilterDefinition<ChartOfAccounts> filter = Builders<ChartOfAccounts>.Filter.And(
-                    Builders<ChartOfAccounts>.Filter.Eq("plan", planId),
-                    Builders<ChartOfAccounts>.Filter.Eq("company", companyId),
-                    Builders<ChartOfAccounts>.Filter.Eq("deleted", false)
-                );
-
-                List<ChartOfAccounts> allAccounts = await context.ChartOfAccounts.Find(filter).ToListAsync();
-
-                // Monta árvore hierárquica
-                var accountsDict = allAccounts.ToDictionary(a => a.Id);
-                var tree = new List<dynamic>();
-
-                foreach (var account in allAccounts.Where(a => !a.Deleted))
-                {
-                    tree.Add(BuildTree(account, accountsDict));
-                }
-
-                return new(tree);
-            }
-            catch
-            {
-                return new(null, 500, "Falha ao buscar árvore de contas");
-            }
-        }
-
-        private dynamic BuildTree(ChartOfAccounts account, Dictionary<string, ChartOfAccounts> allAccounts)
-        {
-            var children = allAccounts.Values
-                .Where(a => !a.Deleted)
-                .Select(child => BuildTree(child, allAccounts))
-                .ToList();
-
-            return new
-            {
-                id = account.Id,
-                code = account.Code,
-                name = account.Name,
-                type = account.Type,
-                // dreCategory = account.DreCategory,
-                // showInDre = account.ShowInDre,
-                level = account.Level,
-                // isAnalytical = account.IsAnalytical,
-                children
-            };
-        }
-        #endregion
     }
 }

@@ -94,7 +94,7 @@ namespace api_infor_cell.src.Services
 
                 ResponseApi<ProfileUser?> response = await repository.UpdateAsync(profileUser);
                 if(!response.IsSuccess) return new(null, 400, "Falha ao atualizar");
-                return new(response.Data, 201, "Atualizado com sucesso");
+                return new(response.Data, 200, "Atualizado com sucesso");
             }
             catch
             {

@@ -27,17 +27,6 @@ namespace api_infor_cell.src.Controllers
         }
 
         [Authorize]
-        [HttpGet("tree")]
-        public async Task<IActionResult> GetTree()
-        {
-            string plan    = User.FindFirst("plan")?.Value    ?? string.Empty;
-            string company = User.FindFirst("company")?.Value ?? string.Empty;
-
-            ResponseApi<List<dynamic>> response = await service.GetTreeAsync(plan, company);
-            return StatusCode(response.StatusCode, new { response.Message, response.Result });
-        }
-
-        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {

@@ -316,7 +316,8 @@ namespace api_infor_cell.src.Services
                 new Claim(JwtRegisteredClaimNames.Nickname, user.UserName),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("type", refresh ? "refresh" : "access")
+                new Claim("type", refresh ? "refresh" : "access"),
+                new Claim("name", user.Name)
             ];
 
             SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);

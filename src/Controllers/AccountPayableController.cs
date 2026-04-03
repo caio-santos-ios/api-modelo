@@ -53,7 +53,16 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<AccountPayable?> response = await service.PayAsync(body);
             return StatusCode(response.StatusCode, new { response.Result });
         }
-
+        
+        [Authorize]
+        [HttpPut("cancel")]
+        public async Task<IActionResult> Cancel([FromBody] CancelAccountPayableDTO body)
+        {
+            if (body == null) return BadRequest("Dados inválidos.");
+            ResponseApi<AccountPayable?> response = await service.CancelAsync(body);
+            return StatusCode(response.StatusCode, new { response.Result });
+        }
+        
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)

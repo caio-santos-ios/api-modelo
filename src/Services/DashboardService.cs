@@ -17,7 +17,7 @@ namespace api_infor_cell.src.Services
             {
                 ResponseApi<dynamic> accountsReceivable = await repository.GetAccountReceivable(startDate, endDate);
 
-                return new(accountsReceivable, 200, "Contas a receber listados com sucesso");
+                return new(accountsReceivable.Data, 200, "Contas a receber listados com sucesso");
             }
             catch(Exception ex)
             {
@@ -30,7 +30,7 @@ namespace api_infor_cell.src.Services
             {
                 ResponseApi<dynamic> accountsPayable = await repository.GetAccountPayable(startDate, endDate);
 
-                return new(accountsPayable, 200, "Contas a pagar listados com sucesso");
+                return new(accountsPayable.Data, 200, "Contas a pagar listados com sucesso");
             }
             catch(Exception ex)
             {

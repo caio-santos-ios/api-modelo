@@ -52,7 +52,6 @@ namespace api_infor_cell.src.Services
                 accountPayable.Code = await countHandler.NextCountAsync("account-payable");
                 accountPayable.Status = "Em Aberto";
                 accountPayable.AmountPaid = 0;
-                accountPayable.IssueDate = DateTime.UtcNow;
 
                 ResponseApi<AccountPayable?> response = await repository.CreateAsync(accountPayable);
                 if (response.Data is null) return new(null, 400, "Falha ao criar conta a pagar.");
@@ -82,6 +81,7 @@ namespace api_infor_cell.src.Services
                 accountPayable.AmountPaid = existing.Data.AmountPaid;
                 accountPayable.PaidAt = existing.Data.PaidAt;
                 accountPayable.CreatedAt = existing.Data.CreatedAt;
+                accountPayable.CreatedBy = existing.Data.CreatedBy;
 
                 ResponseApi<AccountPayable?> response = await repository.UpdateAsync(accountPayable);
                 if (!response.IsSuccess) return new(null, 400, "Falha ao atualizar conta a pagar");
@@ -92,7 +92,6 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
-
         public async Task<ResponseApi<AccountPayable?>> PayAsync(PayAccountPayableDTO request)
         {
             try
@@ -105,11 +104,11 @@ namespace api_infor_cell.src.Services
                 if (request.AmountPaid <= 0) return new(null, 400, "O valor pago deve ser maior que zero.");
                 if((request.AmountPaid + existing.Data.AmountPaid) > existing.Data.Amount) return new(null, 400, "O da baixa não deve ser maior que o valor a pagar.");
 
-                existing.Data.AmountPaid = request.AmountPaid;
+                existing.Data.AmountPaid =+ request.AmountPaid;
                 existing.Data.PaidAt = request.PaidAt;
                 existing.Data.UpdatedAt = DateTime.UtcNow;
 
-                if((request.AmountPaid + existing.Data.AmountPaid) == existing.Data.Amount) 
+                if(existing.Data.AmountPaid == existing.Data.Amount) 
                 {
                     existing.Data.Status = "Pago";
                 }
@@ -133,15 +132,15 @@ namespace api_infor_cell.src.Services
             try
             {
                 ResponseApi<AccountPayable?> accountPayable = await repository.GetByIdAsync(request.Id);
-                if (accountPayable.Data is null) return new(null, 404, "Conta a receber não encontrada");
+                if (accountPayable.Data is null) return new(null, 404, "Conta a Pagar não encontrada");
 
-                if (accountPayable.Data.Status != "Recebido" && accountPayable.Data.Status != "Recebido Parcial") return new(null, 400, "Este título não pode ser cancelado.");
+                if (accountPayable.Data.Status != "Pago" && accountPayable.Data.Status != "Pago Parcial") return new(null, 400, "Este título não pode ser cancelado.");
 
                 accountPayable.Data.Status = "Cancelado";
                 accountPayable.Data.UpdatedAt = DateTime.UtcNow;
                 accountPayable.Data.UpdatedBy = request.UpdatedBy;
 
-                ResponseApi<AccountPayable?> response = await repository.PayAsync(accountPayable.Data);
+                ResponseApi<AccountPayable?> response = await repository.UpdateAsync(accountPayable.Data);
                 if (!response.IsSuccess) return new(null, 400, "Falha ao cancelar título");
 
                 return new(response.Data, 200, "Título cancelado com sucesso");

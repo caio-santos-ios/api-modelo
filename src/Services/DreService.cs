@@ -5,13 +5,7 @@ namespace api_infor_cell.src.Services
 {
     public class DreService(IDreRepository repository) : IDreService
     {
-        public async Task<ResponseApi<dynamic?>> GenerateAsync(
-            string planId,
-            string companyId,
-            string storeId,
-            DateTime startDate,
-            DateTime endDate,
-            string regime)
+        public async Task<ResponseApi<dynamic?>> GenerateAsync(DateTime startDate, DateTime endDate, string regime)
         {
             try
             {
@@ -25,15 +19,13 @@ namespace api_infor_cell.src.Services
                     return new(null, 400, "Regime deve ser 'caixa' ou 'competencia'");
                 }
 
-                ResponseApi<dynamic> response = await repository.GenerateAsync(
-                    planId, companyId, storeId, startDate, endDate, regime
-                );
+                ResponseApi<dynamic> response = await repository.GenerateAsync(startDate, endDate, regime);
                 
-                return new(response.Data);
+                return new(response.Data, 200, "DRE gerado com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Erro ao gerar DRE");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
     }

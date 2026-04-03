@@ -66,6 +66,8 @@ namespace api_infor_cell.src.Services
 
                 ResponseApi<ProfileUser?> profile = await profileUserRepository.GetByIdAsync(request.ProfileUserId);
 
+                if (profile.Data is null) return new(null, 404, "Perfil de usuário não encontrado.");
+
                 dynamic access = Util.GenerateCodeAccess();
 
                 User user = new()
@@ -77,7 +79,7 @@ namespace api_infor_cell.src.Services
                     CodeAccess = "",
                     CodeAccessExpiration = null,
                     ValidatedAccess = true,
-                    Modules = profile.Data?.Modules ?? [],
+                    Modules = profile.Data.Modules,
                     Admin = request.Admin,
                     Blocked = request.Blocked,
                     ProfileUserId = request.ProfileUserId,
@@ -145,34 +147,30 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
-        
         public async Task<ResponseApi<User?>> ResendCodeAccessAsync(UpdateUserDTO request)
         {
             try
             {
                 if(string.IsNullOrEmpty(request.Email)) return new(null, 400, "E-mail é obrigatório.");                    
 
-                User? user = new();
+                ResponseApi<User?> user = await userRepository.GetByEmailAsync(request.Email);
+
+                if(user.Data is null) return new(null, 400, "E-mail inválido.");                    
+                if(!Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");                    
 
                 dynamic access = Util.GenerateCodeAccess();
                 string messageCode = $"Seu código de verificação é: {access.CodeAccess}";
                 
-                if (!string.IsNullOrEmpty(request.Email))
-                {
-                    ResponseApi<User?> isEmail = await userRepository.GetByEmailAsync(request.Email);
-                    if(isEmail.Data is null && !Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");                    
-                    user = isEmail.Data;
-                    await mailHandler.SendMailAsync(request.Email, "Código de verificação", messageCode);
-                };
+                await mailHandler.SendMailAsync(request.Email, "Código de verificação", messageCode);
                 
                 if(user is null) return new(null, 400, "Falha ao reenviar código de acesso");
 
-                user.UpdatedAt = DateTime.UtcNow;
-                user.CodeAccess = access.CodeAccess;
-                user.CodeAccessExpiration = access.CodeAccessExpiration;
-                user.ValidatedAccess = false;
+                user.Data.UpdatedAt = DateTime.UtcNow;
+                user.Data.CodeAccess = access.CodeAccess;
+                user.Data.CodeAccessExpiration = access.CodeAccessExpiration;
+                user.Data.ValidatedAccess = false;
 
-                ResponseApi<User?> response = await userRepository.UpdateAsync(user);
+                ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
                 if(!response.IsSuccess) return new(null, 400, "Falha ao reenviar código de acesso");
                 return new(response.Data, 200, "Novo código de acesso enviado");
             }
@@ -189,13 +187,6 @@ namespace api_infor_cell.src.Services
 
                 ResponseApi<User?> user = await userRepository.GetByIdAsync(request.Id);
                 if(user.Data is null) return new(null, 404, "Falha ao salvar foto de perfil");
-
-                var tempPath = Path.GetTempFileName();
-
-                using (var stream = new FileStream(tempPath, FileMode.Create))
-                {
-                    request.Photo.CopyTo(stream);
-                }
 
                 string uriPhoto = await uploadHander.UploadAttachment("users", request.Photo, "/api/users/photo-profile");
                 user.Data.UpdatedAt = DateTime.UtcNow;

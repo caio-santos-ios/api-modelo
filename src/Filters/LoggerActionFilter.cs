@@ -13,6 +13,8 @@ namespace api_infor_cell.src.Filters
             "/api/loggers",
             "/api/check",
             "/api/auth/login",
+            "/api/auth/register",
+            "/api/notifications/send"
         ];
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)

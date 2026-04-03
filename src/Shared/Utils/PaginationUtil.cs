@@ -90,7 +90,7 @@ namespace api_infor_cell.src.Shared.Utils
                             break;
 
                         case "int":
-                            BsonDocument valueNum = new(comparison, value);
+                            BsonDocument valueNum = new(comparison, int.Parse(value));
 
                             if (logic == "and")
                             {

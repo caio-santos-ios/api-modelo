@@ -29,6 +29,11 @@ namespace api_infor_cell.src.Configuration
             // AUTH
             builder.Services.AddTransient<IAuthService, AuthService>();
 
+            // DASHBOARD
+            builder.Services.AddTransient<IDashboardService, DashboardService>();
+            builder.Services.AddTransient<IDashboardRepository, DashboardRepository>();
+
+
             // MASTER DATA
             builder.Services.AddTransient<IUserService, UserService>();
             builder.Services.AddTransient<IUserRepository, UserRepository>();

@@ -15,13 +15,13 @@ namespace api_infor_cell.src.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            PaginationApi<List<dynamic>> response = await service.GetAllAsync(new(Request.Query));
+            ResponseApi<PaginationApi<List<dynamic>>> response = await service.GetAllAsync(new(Request.Query));
             return StatusCode(response.StatusCode, new { response.Result });
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(string id)
+        public async Task<IActionResult> GetById(string id)
         {
             ResponseApi<dynamic?> response = await service.GetByIdAggregateAsync(id);
             return StatusCode(response.StatusCode, new { response.Result });
@@ -51,6 +51,15 @@ namespace api_infor_cell.src.Controllers
         {
             if (body == null) return BadRequest("Dados inválidos.");
             ResponseApi<AccountReceivable?> response = await service.PayAsync(body);
+            return StatusCode(response.StatusCode, new { response.Result });
+        }
+        
+        [Authorize]
+        [HttpPut("cancel")]
+        public async Task<IActionResult> Cancel([FromBody] CancelAccountReceivableDTO body)
+        {
+            if (body == null) return BadRequest("Dados inválidos.");
+            ResponseApi<AccountReceivable?> response = await service.CancelAsync(body);
             return StatusCode(response.StatusCode, new { response.Result });
         }
 

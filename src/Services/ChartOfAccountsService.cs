@@ -9,24 +9,16 @@ namespace api_infor_cell.src.Services
 {
     public class ChartOfAccountsService(IChartOfAccountsRepository repository, CountHandler countHandler) : IChartOfAccountsService
     {
-        public async Task<ResponseApi<dynamic?>> GetAllAsync(GetAllDTO request)
+        #region READ
+        public async Task<ResponseApi<PaginationApi<List<dynamic>>>> GetAllAsync(GetAllDTO request)
         {
             try
             {
                 PaginationUtil<ChartOfAccounts> pagination = new(request.QueryParams);
-
-                ResponseApi<List<dynamic>> list = await repository.GetAllAsync(pagination);
+                ResponseApi<List<dynamic>> accountsReceivable = await repository.GetAllAsync(pagination);
                 int count = await repository.GetCountDocumentsAsync(pagination);
-
-                dynamic response = new
-                {
-                    data = list.Data,
-                    page = pagination.PageNumber,
-                    pageSize = pagination.PageSize,
-                    count
-                };
-
-                return new(response);
+                PaginationApi<List<dynamic>> data = new(accountsReceivable.Data, count, pagination.PageNumber, pagination.PageSize); 
+                return new(data, 200, "Planos de contas listados com sucesso");
             }
             catch(Exception ex)
             {
@@ -48,7 +40,6 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
-
         public async Task<ResponseApi<dynamic?>> GetByIdAsync(string id)
         {
             try
@@ -61,7 +52,9 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
-        
+        #endregion
+
+        #region CREATE
         public async Task<ResponseApi<ChartOfAccounts?>> CreateAsync(ChartOfAccounts chartOfAccounts)
         {
             try
@@ -78,7 +71,9 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
-
+        #endregion
+        
+        #region UPDATE
         public async Task<ResponseApi<ChartOfAccounts?>> UpdateAsync(ChartOfAccounts chartOfAccounts)
         {
             try
@@ -105,29 +100,28 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
-
+        #endregion
+        
+        #region DELETE
         public async Task<ResponseApi<ChartOfAccounts?>> DeleteAsync(string id)
         {
             try
             {
                 ResponseApi<ChartOfAccounts?> existingAccount = await repository.GetByIdAsync(id);
 
-                if (existingAccount.Data is null)
-                {
-                    return new(null, 404, "Conta não encontrada");
-                }
+                if (existingAccount.Data is null) return new(null, 404, "Plano de Contas não encontrada");
 
                 existingAccount.Data.DeletedAt = DateTime.UtcNow;
 
                 ResponseApi<ChartOfAccounts> response = await repository.DeleteAsync(id);
-                return new(response.Data, response.StatusCode, "Conta excluída com sucesso");
+                return new(response.Data, response.StatusCode, "Plano de Contas excluída com sucesso");
             }
             catch(Exception ex)
             {
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
-
+        #endregion
         public async Task<ResponseApi<List<dynamic>>> GetTreeAsync(string planId, string companyId)
         {
             try

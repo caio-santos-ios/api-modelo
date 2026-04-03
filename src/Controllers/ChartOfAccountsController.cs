@@ -1,7 +1,6 @@
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
-using api_infor_cell.src.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +14,7 @@ namespace api_infor_cell.src.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            ResponseApi<dynamic?> response = await service.GetAllAsync(new(Request.Query));
+            ResponseApi<PaginationApi<List<dynamic>>> response = await service.GetAllAsync(new(Request.Query));
             return StatusCode(response.StatusCode, new { response.Result });
         }
         

@@ -6,11 +6,12 @@ namespace api_infor_cell.src.Interfaces
 {
     public interface IAccountReceivableService
     {
-        Task<PaginationApi<List<dynamic>>> GetAllAsync(GetAllDTO request);
+        Task<ResponseApi<PaginationApi<List<dynamic>>>> GetAllAsync(GetAllDTO request);
         Task<ResponseApi<dynamic?>> GetByIdAggregateAsync(string id);
         Task<ResponseApi<AccountReceivable?>> CreateAsync(CreateAccountReceivableDTO request);
         Task<ResponseApi<AccountReceivable?>> UpdateAsync(UpdateAccountReceivableDTO request);
         Task<ResponseApi<AccountReceivable?>> PayAsync(PayAccountReceivableDTO request);
+        Task<ResponseApi<AccountReceivable?>> CancelAsync(CancelAccountReceivableDTO request);
         Task<ResponseApi<AccountReceivable>> DeleteAsync(string id);
     }
 }

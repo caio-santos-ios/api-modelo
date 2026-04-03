@@ -11,14 +11,15 @@ namespace api_infor_cell.src.Services
     public class AccountPayableService(IAccountPayableRepository repository, CountHandler countHandler, IMapper _mapper) : IAccountPayableService
     {
         #region READ
-        public async Task<PaginationApi<List<dynamic>>> GetAllAsync(GetAllDTO request)
+        public async Task<ResponseApi<PaginationApi<List<dynamic>>>> GetAllAsync(GetAllDTO request)
         {
             try
             {
                 PaginationUtil<AccountPayable> pagination = new(request.QueryParams);
                 ResponseApi<List<dynamic>> accountsPayable = await repository.GetAllAsync(pagination);
                 int count = await repository.GetCountDocumentsAsync(pagination);
-                return new(accountsPayable.Data, count, pagination.PageNumber, pagination.PageSize);
+                PaginationApi<List<dynamic>> data = new(accountsPayable.Data, count, pagination.PageNumber, pagination.PageSize);
+                return new(data, 200, "Contas a pagar listados com sucesso");
             }
             catch(Exception ex)
             {
@@ -32,7 +33,7 @@ namespace api_infor_cell.src.Services
             {
                 ResponseApi<dynamic?> accountPayable = await repository.GetByIdAggregateAsync(id);
                 if (accountPayable.Data is null) return new(null, 404, "Conta a pagar não encontrada");
-                return new(accountPayable.Data);
+                return new(accountPayable.Data, 200, "Conta a pagar obtido com sucesso");
             }
             catch(Exception ex)
             {
@@ -51,9 +52,11 @@ namespace api_infor_cell.src.Services
                 accountPayable.Code = await countHandler.NextCountAsync("account-payable");
                 accountPayable.Status = "Em Aberto";
                 accountPayable.AmountPaid = 0;
+                accountPayable.IssueDate = DateTime.UtcNow;
 
                 ResponseApi<AccountPayable?> response = await repository.CreateAsync(accountPayable);
                 if (response.Data is null) return new(null, 400, "Falha ao criar conta a pagar.");
+                
                 return new(response.Data, 201, "Conta a pagar criada com sucesso.");
             }
             catch(Exception ex)
@@ -96,24 +99,52 @@ namespace api_infor_cell.src.Services
             {
                 ResponseApi<AccountPayable?> existing = await repository.GetByIdAsync(request.Id);
                 if (existing.Data is null) return new(null, 404, "Conta a pagar não encontrada");
+                
+                if (existing.Data.Status == "Pago") return new(null, 400, "Este título já foi baixado.");
 
-                if (existing.Data.Status == "paid")
-                    return new(null, 400, "Este título já foi baixado.");
-
-                if (request.AmountPaid <= 0)
-                    return new(null, 400, "O valor pago deve ser maior que zero.");
+                if (request.AmountPaid <= 0) return new(null, 400, "O valor pago deve ser maior que zero.");
+                if((request.AmountPaid + existing.Data.AmountPaid) > existing.Data.Amount) return new(null, 400, "O da baixa não deve ser maior que o valor a pagar.");
 
                 existing.Data.AmountPaid = request.AmountPaid;
                 existing.Data.PaidAt = request.PaidAt;
                 existing.Data.UpdatedAt = DateTime.UtcNow;
 
-                existing.Data.Status = (request.AmountPaid < existing.Data.Amount && request.Status != "cancelled")
-                    ? "partial"
-                    : request.Status;
+                if((request.AmountPaid + existing.Data.AmountPaid) == existing.Data.Amount) 
+                {
+                    existing.Data.Status = "Pago";
+                }
+                else
+                {
+                    existing.Data.Status = "Pago Parcial";
+                }
 
                 ResponseApi<AccountPayable?> response = await repository.PayAsync(existing.Data);
                 if (!response.IsSuccess) return new(null, 400, "Falha ao baixar título");
+
                 return new(response.Data, 200, "Título baixado com sucesso");
+            }
+            catch(Exception ex)
+            {
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
+            }
+        }
+        public async Task<ResponseApi<AccountPayable?>> CancelAsync(CancelAccountPayableDTO request)
+        {
+            try
+            {
+                ResponseApi<AccountPayable?> accountPayable = await repository.GetByIdAsync(request.Id);
+                if (accountPayable.Data is null) return new(null, 404, "Conta a receber não encontrada");
+
+                if (accountPayable.Data.Status != "Recebido" && accountPayable.Data.Status != "Recebido Parcial") return new(null, 400, "Este título não pode ser cancelado.");
+
+                accountPayable.Data.Status = "Cancelado";
+                accountPayable.Data.UpdatedAt = DateTime.UtcNow;
+                accountPayable.Data.UpdatedBy = request.UpdatedBy;
+
+                ResponseApi<AccountPayable?> response = await repository.PayAsync(accountPayable.Data);
+                if (!response.IsSuccess) return new(null, 400, "Falha ao cancelar título");
+
+                return new(response.Data, 200, "Título cancelado com sucesso");
             }
             catch(Exception ex)
             {

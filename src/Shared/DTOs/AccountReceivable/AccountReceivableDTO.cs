@@ -32,10 +32,10 @@ namespace api_infor_cell.src.Shared.DTOs
         [Display(Order = 3)]
         public DateTime DueDate { get; set; }
 
-        public string Notes { get; set; } = string.Empty;
-
+        [Required(ErrorMessage = "A Data de Emissão é obrigatória.")]
+        [Display(Order = 3)]
         public DateTime IssueDate { get; set; }
-
+        public string Notes { get; set; } = string.Empty;
         public bool IsPaymented {get; set; } = false;
         public string ChartOfAccountId { get; set; } = string.Empty;
     }
@@ -54,11 +54,9 @@ namespace api_infor_cell.src.Shared.DTOs
 
         public string CustomerId { get; set; } = string.Empty;
 
-        public string CustomerName { get; set; } = string.Empty;
 
         public string PaymentMethodId { get; set; } = string.Empty;
 
-        public string PaymentMethodName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O Valor é obrigatório.")]
         [Display(Order = 2)]
@@ -71,6 +69,10 @@ namespace api_infor_cell.src.Shared.DTOs
         [Required(ErrorMessage = "A Data de Vencimento é obrigatória.")]
         [Display(Order = 3)]
         public DateTime DueDate { get; set; }
+
+        [Required(ErrorMessage = "A Data de Emissão é obrigatória.")]
+        [Display(Order = 3)]
+        public DateTime IssueDate { get; set; }
 
         public string Notes { get; set; } = string.Empty;
         public string ChartOfAccountId { get; set; } = string.Empty;
@@ -87,5 +89,10 @@ namespace api_infor_cell.src.Shared.DTOs
         public DateTime PaidAt { get; set; } = DateTime.UtcNow;
 
         public string Status { get; set; } = "paid";
+    }
+    public class CancelAccountReceivableDTO : RequestDTO
+    {
+        [Required(ErrorMessage = "O ID é obrigatório.")]
+        public string Id { get; set; } = string.Empty;
     }
 }

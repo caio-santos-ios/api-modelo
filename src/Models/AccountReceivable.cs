@@ -57,5 +57,11 @@ namespace api_infor_cell.src.Models
         
         [BsonElement("chartOfAccountId")]
         public string ChartOfAccountId { get; set; } = string.Empty;
+
+        [BsonElement("isRecurrent")]
+        public bool IsRecurrent { get; set; } = false;
+        
+        [BsonElement("typeRecurrent")]
+        public string TypeRecurrent { get; set; } = string.Empty;
     }
 }

@@ -10,7 +10,7 @@ namespace api_infor_cell.src.Controllers
 {
     [Route("api/triggers")]
     [ApiController]
-    public class TriggerController(ITriggerService service, ILoggerService loggerService) : ControllerBase
+    public class TriggerController(ITriggerService service) : ControllerBase
     {
         [Authorize]
         [HttpGet]

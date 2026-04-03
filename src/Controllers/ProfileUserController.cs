@@ -10,7 +10,7 @@ namespace api_infor_cell.src.Controllers
 {
     [Route("api/profile-users")]
     [ApiController]
-    public class ProfileUserController(IProfileUserService service, ILoggerService loggerService) : ControllerBase
+    public class ProfileUserController(IProfileUserService service) : ControllerBase
     {
         [Authorize]
         [HttpGet]

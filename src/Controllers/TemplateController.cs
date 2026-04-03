@@ -10,7 +10,7 @@ namespace api_infor_cell.src.Controllers
 {
     [Route("api/templates")]
     [ApiController]
-    public class TemplateController(ITemplateService service, ILoggerService loggerService) : ControllerBase
+    public class TemplateController(ITemplateService service) : ControllerBase
     {
         [Authorize]
         [HttpGet]

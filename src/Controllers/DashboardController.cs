@@ -10,10 +10,18 @@ namespace api_infor_cell.src.Controllers
     public class DashboardController(IDashboardService service) : ControllerBase
     {
         [Authorize]
-        [HttpGet("accounts-payable")]
+        [HttpGet("accounts-receivable")]
         public async Task<IActionResult> GetAccountReceivable([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             ResponseApi<dynamic> response = await service.GetAccountReceivable(startDate, endDate);
+            return StatusCode(response.StatusCode, new { response.Result });
+        }
+        
+        [Authorize]
+        [HttpGet("accounts-payable")]
+        public async Task<IActionResult> GetAccountPayable([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            ResponseApi<dynamic> response = await service.GetAccountPayable(startDate, endDate);
             return StatusCode(response.StatusCode, new { response.Result });
         }
     }

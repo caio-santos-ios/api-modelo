@@ -15,7 +15,20 @@ namespace api_infor_cell.src.Services
         {
             try
             {
-                ResponseApi<dynamic> accountsPayable = await repository.GetAccountReceivable(startDate, endDate);
+                ResponseApi<dynamic> accountsReceivable = await repository.GetAccountReceivable(startDate, endDate);
+
+                return new(accountsReceivable, 200, "Contas a receber listados com sucesso");
+            }
+            catch(Exception ex)
+            {
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
+            }
+        }
+        public async Task<ResponseApi<dynamic>> GetAccountPayable(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                ResponseApi<dynamic> accountsPayable = await repository.GetAccountPayable(startDate, endDate);
 
                 return new(accountsPayable, 200, "Contas a pagar listados com sucesso");
             }

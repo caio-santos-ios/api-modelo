@@ -5,5 +5,6 @@ namespace api_infor_cell.src.Interfaces
     public interface IDashboardRepository
     {
         Task<ResponseApi<dynamic>> GetAccountReceivable(DateTime startDate, DateTime endDate);
+        Task<ResponseApi<dynamic>> GetAccountPayable(DateTime startDate, DateTime endDate);
     }
 }

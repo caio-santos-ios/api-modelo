@@ -28,6 +28,14 @@ namespace api_infor_cell.src.Configuration
             CreateMap<UpdatePaymentMethodDTO, PaymentMethod>().ReverseMap();
             #endregion
             
+            CreateMap<CreateServiceOrderDTO, ServiceOrder>().ReverseMap();
+            CreateMap<UpdateServiceOrderDTO, ServiceOrder>().ReverseMap();
+            CreateMap<CreateServiceOrderItemDTO, ServiceOrderItem>().ReverseMap();
+            CreateMap<UpdateServiceOrderItemDTO, ServiceOrderItem>().ReverseMap();
+
+            CreateMap<CreateSituationDTO, Situation>().ReverseMap();
+            CreateMap<UpdateSituationDTO, Situation>().ReverseMap();
+
             #region SETTINGS
             CreateMap<CreateLoggerDTO, Logger>().ReverseMap();
             CreateMap<UpdateLoggerDTO, Logger>().ReverseMap();

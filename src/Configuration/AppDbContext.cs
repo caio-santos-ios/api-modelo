@@ -44,6 +44,19 @@ namespace api_infor_cell.src.Configuration
         public IMongoCollection<ChartOfAccounts> ChartOfAccounts => Database.GetCollection<ChartOfAccounts>("chart_of_accounts");
         #endregion
 
+        public IMongoCollection<ServiceOrder> ServiceOrders
+        {
+            get { return Database.GetCollection<ServiceOrder>("service_orders"); }
+        }
+        public IMongoCollection<ServiceOrderItem> ServiceOrderItems
+        {
+            get { return Database.GetCollection<ServiceOrderItem>("service_order_items"); }
+        }
+        public IMongoCollection<Situation> Situations
+        {
+            get { return Database.GetCollection<Situation>("situations"); }
+        } 
+
         #region SETTINGS
         public IMongoCollection<Logger> Loggers => Database.GetCollection<Logger>("loggers");
         public IMongoCollection<Count> Counts => Database.GetCollection<Count>("counts");

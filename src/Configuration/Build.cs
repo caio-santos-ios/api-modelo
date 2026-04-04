@@ -52,6 +52,14 @@ namespace api_infor_cell.src.Configuration
             builder.Services.AddTransient<IPaymentMethodRepository, PaymentMethodRepository>();
             builder.Services.AddTransient<IPaymentMethodService, PaymentMethodService>();
 
+            // OS
+            builder.Services.AddTransient<IServiceOrderService, ServiceOrderService>();
+            builder.Services.AddTransient<IServiceOrderRepository, ServiceOrderRepository>();
+            builder.Services.AddTransient<IServiceOrderItemService, ServiceOrderItemService>();
+            builder.Services.AddTransient<IServiceOrderItemRepository, ServiceOrderItemRepository>();
+            builder.Services.AddTransient<ISituationService, SituationService>();
+            builder.Services.AddTransient<ISituationRepository, SituationRepository>();
+
             // SETTINGS
             builder.Services.AddScoped<ILoggerService, LoggerService>();
             builder.Services.AddScoped<ILoggerRepository, LoggerRepository>();

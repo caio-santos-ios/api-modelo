@@ -61,7 +61,8 @@ namespace api_infor_cell.src.Services
             {
                 chartOfAccounts.CreatedAt = DateTime.UtcNow;
                 string code = await countHandler.NextCountAsync("chart-of-account");
-                chartOfAccounts.Code = $"{chartOfAccounts.Account}.{code}";
+                ResponseApi<long> codeDRE = await repository.GetNextCodeAsync(chartOfAccounts.Type, chartOfAccounts.GroupDRE);
+                chartOfAccounts.Code = $"{chartOfAccounts.Account}.{codeDRE.Data.ToString().PadLeft(4, '0')}";
 
                 ResponseApi<ChartOfAccounts?> response = await repository.CreateAsync(chartOfAccounts);
                 return new(response.Data, response.StatusCode, "Conta criada com sucesso");

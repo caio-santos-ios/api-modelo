@@ -11,17 +11,33 @@ namespace api_infor_cell.src.Controllers
     {
         [Authorize]
         [HttpGet("accounts-receivable")]
-        public async Task<IActionResult> GetAccountReceivable([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetAccountReceivableCard([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            ResponseApi<dynamic> response = await service.GetAccountReceivable(startDate, endDate);
+            ResponseApi<dynamic> response = await service.GetAccountReceivableCard(startDate, endDate);
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
         [Authorize]
         [HttpGet("accounts-payable")]
-        public async Task<IActionResult> GetAccountPayable([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetAccountPayableCard([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            ResponseApi<dynamic> response = await service.GetAccountPayable(startDate, endDate);
+            ResponseApi<dynamic> response = await service.GetAccountPayableCard(startDate, endDate);
+            return StatusCode(response.StatusCode, new { response.Result });
+        }
+        
+        [Authorize]
+        [HttpGet("cash-flow")]
+        public async Task<IActionResult> GetCashFlowCard([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            ResponseApi<dynamic> response = await service.GetCashFlowCard(startDate, endDate);
+            return StatusCode(response.StatusCode, new { response.Result });
+        }
+        
+        [Authorize]
+        [HttpGet("entrie-exit")]
+        public async Task<IActionResult> GetEntrieExitBar([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            ResponseApi<dynamic> response = await service.GetEntrieExitBar(startDate, endDate);
             return StatusCode(response.StatusCode, new { response.Result });
         }
     }

@@ -4,7 +4,9 @@ namespace api_infor_cell.src.Interfaces
 {
     public interface IDashboardRepository
     {
-        Task<ResponseApi<dynamic>> GetAccountReceivable(DateTime startDate, DateTime endDate);
-        Task<ResponseApi<dynamic>> GetAccountPayable(DateTime startDate, DateTime endDate);
+        Task<ResponseApi<dynamic>> GetAccountReceivableCard(DateTime startDate, DateTime endDate);
+        Task<ResponseApi<dynamic>> GetAccountPayableCard(DateTime startDate, DateTime endDate);
+        Task<ResponseApi<dynamic>> GetCashFlowCard(DateTime startDate, DateTime endDate);
+        Task<ResponseApi<dynamic>> GetEntrieExitBar(DateTime startDate, DateTime endDate);
     }
 }

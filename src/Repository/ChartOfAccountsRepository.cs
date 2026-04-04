@@ -138,14 +138,11 @@ namespace api_infor_cell.src.Repository
                 return 0;
             }
         }
-        public async Task<ResponseApi<long>> GetNextCodeAsync(string plan, string company, string store, string type, string groupDRE)
+        public async Task<ResponseApi<long>> GetNextCodeAsync(string type, string groupDRE)
         {
             try
             {
                 FilterDefinition<ChartOfAccounts> filter = Builders<ChartOfAccounts>.Filter.And(
-                    Builders<ChartOfAccounts>.Filter.Eq("plan", plan),
-                    Builders<ChartOfAccounts>.Filter.Eq("company", company),
-                    Builders<ChartOfAccounts>.Filter.Eq("store", store),
                     Builders<ChartOfAccounts>.Filter.Eq("type", type),
                     Builders<ChartOfAccounts>.Filter.Eq("groupDRE", groupDRE),
                     Builders<ChartOfAccounts>.Filter.Eq("deleted", false)

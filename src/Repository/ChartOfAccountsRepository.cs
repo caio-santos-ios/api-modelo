@@ -130,8 +130,24 @@ namespace api_infor_cell.src.Repository
         {
             try
             {
-                long count = await context.ChartOfAccounts.CountDocumentsAsync(pagination.Filter ?? Builders<ChartOfAccounts>.Filter.Empty);
-                return (int)count;
+                List<BsonDocument> pipeline = new()
+                {
+                    new("$match", pagination.PipelineFilter),
+                    new("$sort", pagination.PipelineSort),
+                    new("$addFields", new BsonDocument
+                    {
+                        {"id", new BsonDocument("$toString", "$_id")},
+                    }),
+                    new("$project", new BsonDocument
+                    {
+                        {"_id", 0},
+                        {"createdAt", 1},
+                    }),
+                    new("$sort", pagination.PipelineSort),
+                };
+
+                List<BsonDocument> results = await context.ChartOfAccounts.Aggregate<BsonDocument>(pipeline).ToListAsync();
+                return results.Select(doc => BsonSerializer.Deserialize<dynamic>(doc)).Count();
             }
             catch
             {

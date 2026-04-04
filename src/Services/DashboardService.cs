@@ -1,6 +1,5 @@
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models.Base;
-using AutoMapper;
 
 namespace api_infor_cell.src.Services
 {
@@ -70,6 +69,21 @@ namespace api_infor_cell.src.Services
                 ResponseApi<dynamic> dash = await repository.GetExpenseCategoryPie(startDate, endDate);
 
                 return new(dash.Data, 200, "Despesas por categoria listados com sucesso");
+            }
+            catch(Exception ex)
+            {
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
+            }
+        }
+        #endregion
+        #region FINANCIAL AREA
+        public async Task<ResponseApi<dynamic>> GetEvolutionBalanceArea(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                ResponseApi<dynamic> dash = await repository.GetEvolutionBalanceArea(startDate, endDate);
+
+                return new(dash.Data, 200, "Evolução do saldo listados com sucesso");
             }
             catch(Exception ex)
             {

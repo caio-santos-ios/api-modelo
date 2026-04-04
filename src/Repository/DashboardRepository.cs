@@ -2,7 +2,6 @@ using api_infor_cell.src.Configuration;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
-using api_infor_cell.src.Shared.Utils;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
@@ -252,8 +251,64 @@ namespace api_infor_cell.src.Repository
             }
         }
         #endregion
+        #region FINANCIAL AREA
+        public async Task<ResponseApi<dynamic>> GetEvolutionBalanceArea(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                List<string> categories = GenerateMonths(startDate, endDate, true);
+                List<AccountReceivable> entrieList = await context.AccountsReceivable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Recebido" || x.Status == "Recebido Parcial") && x.Status != "Cancelado").ToListAsync();
+                List<AccountPayable> exitList = await context.AccountsPayable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Pago" || x.Status == "Pago Parcial") && x.Status != "Cancelado").ToListAsync();
+
+                decimal[] balances = new decimal[categories.Count];
+
+                for (int i = 0; i < balances.Length; i++)
+                {
+                    balances[i] = 0;
+                    string category = categories[i];
+
+                    var arrayCategory = category.Split("/");
+
+                    if(arrayCategory.Length == 2)
+                    {
+                        int month = Convert.ToInt32(arrayCategory[0]);
+                        int year  = Convert.ToInt32(arrayCategory[1]);
+
+                        List<AccountReceivable> listReceivableTotal = entrieList.Where(x => x.IssueDate.Date.Month == month && x.IssueDate.Year == year && x.Status == "Recebido").ToList();
+                        List<AccountReceivable> listReceivableParcial = entrieList.Where(x => x.IssueDate.Date.Month == month && x.IssueDate.Year == year && x.Status == "Recebido Parcial").ToList();
+
+                        decimal totalReceivable = listReceivableTotal.Sum(x => x.Amount);
+                        decimal parcialReceivable = listReceivableParcial.Sum(x => x.AmountPaid);
+
+                        List<AccountPayable> listPayableTotal = exitList.Where(x => x.IssueDate.Date.Month == month && x.IssueDate.Year == year && x.Status == "Pago").ToList();
+                        List<AccountPayable> listPayableParcial = exitList.Where(x => x.IssueDate.Date.Month == month && x.IssueDate.Year == year && x.Status == "Pago Parcial").ToList();
+                        
+                        decimal totalPayable = listPayableTotal.Sum(x => x.Amount);
+                        decimal parcialPayable = listPayableParcial.Sum(x => x.AmountPaid);
+
+                        decimal receivable = totalReceivable + parcialReceivable;
+                        decimal payable = totalPayable + parcialPayable; 
+                        balances[i] = receivable - payable;
+                    }
+                }
+                
+                dynamic data = new
+                {
+                    balances,
+                    categories
+                };
+
+                return new(data);
+            }
+            catch
+            {
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+            }
+        }
+        #endregion
         #region FUNCTIONS
-        private List<string> GenerateMonths(DateTime startDate, DateTime endDate)
+        private readonly List<string> monthList = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        private List<string> GenerateMonths(DateTime startDate, DateTime endDate, bool isMonthDescription = false)
         {
             List<string> months = new();
 
@@ -262,7 +317,16 @@ namespace api_infor_cell.src.Repository
             while(controlDate < endDate)
             {
                 controlDate = controlDate.AddMonths(1);
-                months.Add(controlDate.ToString("MM/yyyy"));
+
+                if(isMonthDescription)
+                {
+                    int indexMonth = controlDate.Month;
+                    months.Add($"{monthList[indexMonth - 1]}/" + controlDate.ToString("yyyy"));
+                }
+                else
+                {
+                    months.Add(controlDate.ToString("MM/yyyy"));
+                }
             }
 
             return months;

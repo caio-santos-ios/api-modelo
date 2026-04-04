@@ -48,5 +48,13 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<dynamic> response = await service.GetExpenseCategoryPie(startDate, endDate);
             return StatusCode(response.StatusCode, new { response.Result });
         }
+        
+        [Authorize]
+        [HttpGet("evolution-balance")]
+        public async Task<IActionResult> GetEvolutionBalanceArea([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            ResponseApi<dynamic> response = await service.GetEvolutionBalanceArea(startDate, endDate);
+            return StatusCode(response.StatusCode, new { response.Result });
+        }
     }
 }

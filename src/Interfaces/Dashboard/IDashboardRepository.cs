@@ -9,5 +9,6 @@ namespace api_infor_cell.src.Interfaces
         Task<ResponseApi<dynamic>> GetCashFlowCard(DateTime startDate, DateTime endDate);
         Task<ResponseApi<dynamic>> GetEntrieExitBar(DateTime startDate, DateTime endDate);
         Task<ResponseApi<dynamic>> GetExpenseCategoryPie(DateTime startDate, DateTime endDate);
+        Task<ResponseApi<dynamic>> GetEvolutionBalanceArea(DateTime startDate, DateTime endDate);
     }
 }

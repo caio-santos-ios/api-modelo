@@ -11,9 +11,9 @@ namespace api_infor_cell.src.Services
         {
             try
             {
-                ResponseApi<dynamic> accountsReceivable = await repository.GetAccountReceivableCard(startDate, endDate);
+                ResponseApi<dynamic> dash = await repository.GetAccountReceivableCard(startDate, endDate);
 
-                return new(accountsReceivable.Data, 200, "Contas a receber listados com sucesso");
+                return new(dash.Data, 200, "Contas a receber listados com sucesso");
             }
             catch(Exception ex)
             {
@@ -24,9 +24,9 @@ namespace api_infor_cell.src.Services
         {
             try
             {
-                ResponseApi<dynamic> accountsPayable = await repository.GetAccountPayableCard(startDate, endDate);
+                ResponseApi<dynamic> dash = await repository.GetAccountPayableCard(startDate, endDate);
 
-                return new(accountsPayable.Data, 200, "Contas a pagar listados com sucesso");
+                return new(dash.Data, 200, "Contas a pagar listados com sucesso");
             }
             catch(Exception ex)
             {
@@ -37,9 +37,9 @@ namespace api_infor_cell.src.Services
         {
             try
             {
-                ResponseApi<dynamic> accountsPayable = await repository.GetCashFlowCard(startDate, endDate);
+                ResponseApi<dynamic> dash = await repository.GetCashFlowCard(startDate, endDate);
 
-                return new(accountsPayable.Data, 200, "Fluxo de Caixa listados com sucesso");
+                return new(dash.Data, 200, "Fluxo de Caixa listados com sucesso");
             }
             catch(Exception ex)
             {
@@ -47,14 +47,29 @@ namespace api_infor_cell.src.Services
             }
         }
         #endregion
-        #region FINANCIAL
+        #region FINANCIAL BAR
         public async Task<ResponseApi<dynamic>> GetEntrieExitBar(DateTime startDate, DateTime endDate)
         {
             try
             {
-                ResponseApi<dynamic> accountsReceivable = await repository.GetEntrieExitBar(startDate, endDate);
+                ResponseApi<dynamic> dash = await repository.GetEntrieExitBar(startDate, endDate);
 
-                return new(accountsReceivable.Data, 200, "Entradas VS Saidas listados com sucesso");
+                return new(dash.Data, 200, "Entradas VS Saidas listados com sucesso");
+            }
+            catch(Exception ex)
+            {
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
+            }
+        }
+        #endregion
+        #region FINANCIAL PIE
+        public async Task<ResponseApi<dynamic>> GetExpenseCategoryPie(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                ResponseApi<dynamic> dash = await repository.GetExpenseCategoryPie(startDate, endDate);
+
+                return new(dash.Data, 200, "Despesas por categoria listados com sucesso");
             }
             catch(Exception ex)
             {

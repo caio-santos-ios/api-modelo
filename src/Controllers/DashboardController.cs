@@ -40,5 +40,13 @@ namespace api_infor_cell.src.Controllers
             ResponseApi<dynamic> response = await service.GetEntrieExitBar(startDate, endDate);
             return StatusCode(response.StatusCode, new { response.Result });
         }
+        
+        [Authorize]
+        [HttpGet("expense-category")]
+        public async Task<IActionResult> GetExpenseCategoryPie([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            ResponseApi<dynamic> response = await service.GetExpenseCategoryPie(startDate, endDate);
+            return StatusCode(response.StatusCode, new { response.Result });
+        }
     }
 }

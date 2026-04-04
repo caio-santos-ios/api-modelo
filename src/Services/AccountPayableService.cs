@@ -104,7 +104,7 @@ namespace api_infor_cell.src.Services
                 if (request.AmountPaid <= 0) return new(null, 400, "O valor pago deve ser maior que zero.");
                 if((request.AmountPaid + existing.Data.AmountPaid) > existing.Data.Amount) return new(null, 400, "O da baixa não deve ser maior que o valor a pagar.");
 
-                existing.Data.AmountPaid =+ request.AmountPaid;
+                existing.Data.AmountPaid += request.AmountPaid;
                 existing.Data.PaidAt = request.PaidAt;
                 existing.Data.UpdatedAt = DateTime.UtcNow;
 

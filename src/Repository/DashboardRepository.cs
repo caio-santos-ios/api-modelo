@@ -2,6 +2,7 @@ using api_infor_cell.src.Configuration;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
+using api_infor_cell.src.Shared.Utils;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
@@ -24,10 +25,10 @@ namespace api_infor_cell.src.Repository
 
                 long cancelCount = await context.AccountsReceivable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status == "Cancelado").CountDocumentsAsync();
                 
-                List<AccountReceivable> overdueAmountList = await context.AccountsReceivable.Find(x => !x.Deleted && x.DueDate.Date < DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status != "Cancelado").ToListAsync();
+                List<AccountReceivable> overdueAmountList = await context.AccountsReceivable.Find(x => !x.Deleted && x.DueDate.Date < DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status != "Cancelado" && x.Status != "Recebido").ToListAsync();
                 decimal overdueAmount = overdueAmountList.Sum(x => x.Amount) - overdueAmountList.Sum(x => x.AmountPaid);
 
-                long overdueCount = await context.AccountsReceivable.Find(x => !x.Deleted && x.DueDate.Date < DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status != "Cancelado").CountDocumentsAsync();
+                long overdueCount = await context.AccountsReceivable.Find(x => !x.Deleted && x.DueDate.Date < DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status != "Cancelado" && x.Status != "Recebido").CountDocumentsAsync();
                 
                 List<AccountReceivable> totalAmountList = await context.AccountsReceivable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date).ToListAsync();
                 decimal totalAmount = totalAmountList.Sum(x => x.Amount);
@@ -67,10 +68,10 @@ namespace api_infor_cell.src.Repository
 
                 long cancelCount = await context.AccountsPayable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status == "Cancelado").CountDocumentsAsync();
                 
-                List<AccountPayable> overdueAmountList = await context.AccountsPayable.Find(x => !x.Deleted && x.DueDate.Date < DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status != "Cancelado").ToListAsync();
+                List<AccountPayable> overdueAmountList = await context.AccountsPayable.Find(x => !x.Deleted && x.DueDate.Date < DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status != "Cancelado" && x.Status != "Pago").ToListAsync();
                 decimal overdueAmount = overdueAmountList.Sum(x => x.Amount) - overdueAmountList.Sum(x => x.AmountPaid);
 
-                long overdueCount = await context.AccountsPayable.Find(x => !x.Deleted && x.DueDate.Date < DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status != "Cancelado").CountDocumentsAsync();
+                long overdueCount = await context.AccountsPayable.Find(x => !x.Deleted && x.DueDate.Date < DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status != "Cancelado" && x.Status != "Pago").CountDocumentsAsync();
                 
                 List<AccountPayable> totalAmountList = await context.AccountsPayable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date).ToListAsync();
                 decimal totalAmount = totalAmountList.Sum(x => x.Amount);
@@ -131,54 +132,116 @@ namespace api_infor_cell.src.Repository
         {
             try
             {
-                List<AccountReceivable> entrieList = await context.AccountsReceivable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Recebido" || x.Status == "Recebido Parcial")).ToListAsync();
+                List<string> categories = GenerateMonths(startDate, endDate);
+                List<AccountReceivable> entrieList = await context.AccountsReceivable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Recebido" || x.Status == "Recebido Parcial") && x.Status != "Cancelado").ToListAsync();
 
-                List<AccountReceivable> entrieValueList = [];
-                foreach (AccountReceivable entrie in entrieList)
+                decimal[] entries = new decimal[categories.Count];
+
+                for (int i = 0; i < entries.Length; i++)
                 {
-                    if(entrie.Status == "Recebido") 
+                    entries[i] = 0;
+                    string category = categories[i];
+
+                    var arrayCategory = category.Split("/");
+
+                    if(arrayCategory.Length == 2)
                     {
-                        entrieValueList.Add(entrie);
-                    }
-                    else
-                    {
-                        entrie.Amount = entrie.AmountPaid; 
-                        entrieValueList.Add(entrie);
+                        int month = Convert.ToInt32(arrayCategory[0]);
+                        int year  = Convert.ToInt32(arrayCategory[1]);
+                        List<AccountReceivable> listReceivableTotal = entrieList.Where(x => x.IssueDate.Date.Month == month && x.IssueDate.Year == year && x.Status == "Recebido").ToList();
+                        List<AccountReceivable> listReceivableParcial = entrieList.Where(x => x.IssueDate.Date.Month == month && x.IssueDate.Year == year && x.Status == "Recebido Parcial").ToList();
+
+                        decimal totalReceivable = listReceivableTotal.Sum(x => x.Amount);
+                        decimal parcialReceivable = listReceivableParcial.Sum(x => x.AmountPaid);
+                        entries[i] = totalReceivable + parcialReceivable;
                     }
                 }
-
-                var entries = entrieValueList
-                .GroupBy(x => new { x.IssueDate.Year, x.IssueDate.Month })
-                .Select(g => g.Sum(x => x.Amount))
-                .ToList();
                 
-                List<AccountPayable> exitList = await context.AccountsPayable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Pago" || x.Status == "Pago Parcial")).ToListAsync();
+                List<AccountPayable> exitList = await context.AccountsPayable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Pago" || x.Status == "Pago Parcial") && x.Status != "Cancelado").ToListAsync();
 
-                List<AccountPayable> exitValueList = [];
-                foreach (AccountPayable exit in exitList)
+                decimal[] exits = new decimal[categories.Count];
+
+                for (int i = 0; i < exits.Length; i++)
                 {
-                    if(exit.Status == "Pago") 
+                    exits[i] = 0;
+                    string category = categories[i];
+
+                    var arrayCategory = category.Split("/");
+
+                    if(arrayCategory.Length == 2)
                     {
-                        exitValueList.Add(exit);
-                    }
-                    else
-                    {
-                        exit.Amount = exit.AmountPaid; 
-                        exitValueList.Add(exit);
+                        int month = Convert.ToInt32(arrayCategory[0]);
+                        int year  = Convert.ToInt32(arrayCategory[1]);
+
+                        List<AccountPayable> listPayableTotal = exitList.Where(x => x.IssueDate.Date.Month == month && x.IssueDate.Year == year && x.Status == "Pago").ToList();
+                        List<AccountPayable> listPayableParcial = exitList.Where(x => x.IssueDate.Date.Month == month && x.IssueDate.Year == year && x.Status == "Pago Parcial").ToList();
+                        
+                        decimal totalPayable = listPayableTotal.Sum(x => x.Amount);
+                        decimal parcialPayable = listPayableParcial.Sum(x => x.AmountPaid);
+                        exits[i] = totalPayable + parcialPayable;
                     }
                 }
-
-                var exits = exitValueList
-                .GroupBy(x => new { x.IssueDate.Year, x.IssueDate.Month })
-                .Select(g => g.Sum(x => x.Amount))
-                .ToList();
-
 
                 dynamic data = new
                 {
                     entries,
                     exits,
-                    categories = GenerateMonths(startDate, endDate)
+                    categories
+                };
+
+                return new(data);
+            }
+            catch
+            {
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+            }
+        }
+        #endregion
+        #region FINANCIAL PIE
+        public async Task<ResponseApi<dynamic>> GetExpenseCategoryPie(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                List<ChartOfAccounts> categories = await context.ChartOfAccounts.Find(x => !x.Deleted && x.Type == "despesa").ToListAsync();
+
+                List<string> labels = new();
+                List<decimal> values = new();
+                decimal total = 0; 
+                foreach (ChartOfAccounts category in categories)
+                {
+                    List<AccountPayable> listPayableTotal = await context.AccountsPayable.Find(x => 
+                        !x.Deleted && 
+                        x.ChartOfAccountId == category.Id &&
+                        x.IssueDate.Date >= startDate.Date &&
+                        x.IssueDate.Date <= endDate.Date &&
+                        x.Status == "Pago")
+                    .ToListAsync();
+                    
+                    List<AccountPayable> listPayableParcial = await context.AccountsPayable.Find(x => 
+                        !x.Deleted && 
+                        x.ChartOfAccountId == category.Id &&
+                        x.IssueDate.Date >= startDate.Date &&
+                        x.IssueDate.Date <= endDate.Date &&
+                        x.Status == "Pago Parcial")
+                    .ToListAsync();
+
+                    decimal totalPayable = listPayableTotal.Sum(x => x.Amount);
+                    decimal parcialPayable = listPayableParcial.Sum(x => x.AmountPaid);
+                    
+                    if(listPayableTotal.Count > 0 || listPayableParcial.Count > 0)
+                    {
+                        labels.Add(category.Name);
+                        values.Add(totalPayable + parcialPayable);
+                    }
+                    
+                    total += totalPayable + parcialPayable;
+                }
+
+                dynamic data = new
+                {
+                    labels,
+                    values,
+                    total
                 };
 
                 return new(data);
@@ -199,7 +262,7 @@ namespace api_infor_cell.src.Repository
             while(controlDate < endDate)
             {
                 controlDate = controlDate.AddMonths(1);
-                months.Add(controlDate.ToString("MM/yy"));
+                months.Add(controlDate.ToString("MM/yyyy"));
             }
 
             return months;

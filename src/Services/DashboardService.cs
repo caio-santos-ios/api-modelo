@@ -60,6 +60,19 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
+        public async Task<ResponseApi<dynamic>> GetTopRevenueBar(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                ResponseApi<dynamic> dash = await repository.GetTopRevenueBar(startDate, endDate);
+
+                return new(dash.Data, 200, "Top receitas listados com sucesso");
+            }
+            catch(Exception ex)
+            {
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
+            }
+        }
         #endregion
         #region FINANCIAL PIE
         public async Task<ResponseApi<dynamic>> GetExpenseCategoryPie(DateTime startDate, DateTime endDate)

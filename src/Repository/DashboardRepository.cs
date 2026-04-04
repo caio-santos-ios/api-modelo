@@ -2,7 +2,6 @@ using api_infor_cell.src.Configuration;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
-using api_infor_cell.src.Shared.Utils;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
@@ -187,6 +186,59 @@ namespace api_infor_cell.src.Repository
                     entries,
                     exits,
                     categories
+                };
+
+                return new(data);
+            }
+            catch
+            {
+                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+            }
+        }
+        public async Task<ResponseApi<dynamic>> GetTopRevenueBar(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                List<ChartOfAccounts> categories = await context.ChartOfAccounts.Find(x => !x.Deleted && x.Type == "receita").ToListAsync();
+
+                List<string> labels = new();
+                List<decimal> values = new();
+                decimal total = 0; 
+                foreach (ChartOfAccounts category in categories)
+                {
+                    List<AccountReceivable> listReceivableTotal = await context.AccountsReceivable.Find(x => 
+                        !x.Deleted && 
+                        x.ChartOfAccountId == category.Id &&
+                        x.IssueDate.Date >= startDate.Date &&
+                        x.IssueDate.Date <= endDate.Date &&
+                        x.Status == "Recebido")
+                    .ToListAsync();
+                    
+                    List<AccountReceivable> listReceivableParcial = await context.AccountsReceivable.Find(x => 
+                        !x.Deleted && 
+                        x.ChartOfAccountId == category.Id &&
+                        x.IssueDate.Date >= startDate.Date &&
+                        x.IssueDate.Date <= endDate.Date &&
+                        x.Status == "Recebido Parcial")
+                    .ToListAsync();
+
+                    decimal totalReceivable = listReceivableTotal.Sum(x => x.Amount);
+                    decimal parcialReceivable = listReceivableParcial.Sum(x => x.AmountPaid);
+                    
+                    if(listReceivableTotal.Count > 0 || listReceivableParcial.Count > 0)
+                    {
+                        labels.Add(category.Name);
+                        values.Add(totalReceivable + parcialReceivable);
+                    }
+                    
+                    total += totalReceivable + parcialReceivable;
+                }
+
+                dynamic data = new
+                {
+                    categories = labels,
+                    balances = values,
+                    total
                 };
 
                 return new(data);

@@ -229,9 +229,8 @@ namespace api_infor_cell.src.Repository
                     {
                         labels.Add(category.Name);
                         values.Add(totalReceivable + parcialReceivable);
-                    }
-                    
-                    total += totalReceivable + parcialReceivable;
+                        total += totalReceivable + parcialReceivable;
+                    }                    
                 }
 
                 dynamic data = new

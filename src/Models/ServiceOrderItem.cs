@@ -41,14 +41,8 @@ namespace api_infor_cell.src.Models
         [BsonElement("supplierId")]
         public string SupplierId { get; set; } = string.Empty;
 
-        [BsonElement("supplierName")]
-        public string SupplierName { get; set; } = string.Empty;
-
         [BsonElement("technicianId")]
         public string TechnicianId { get; set; } = string.Empty;
-
-        [BsonElement("technicianName")]
-        public string TechnicianName { get; set; } = string.Empty;
 
         [BsonElement("commission")]
         public decimal Commission { get; set; }

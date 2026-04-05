@@ -1,14 +1,14 @@
+using System.Security.Claims;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
 using api_infor_cell.src.Shared.DTOs;
-using api_infor_cell.src.Shared.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_infor_cell.src.Controllers
 {
-    [Route("api/serviceOrders")]
+    [Route("api/service-orders")]
     [ApiController]
     public class ServiceOrderController(IServiceOrderService service) : ControllerBase
     {
@@ -41,6 +41,7 @@ namespace api_infor_cell.src.Controllers
         public async Task<IActionResult> Create([FromBody] CreateServiceOrderDTO body)
         {
             if (body == null) return BadRequest("Dados inválidos.");
+            body.CreatedBy = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             ResponseApi<ServiceOrder?> response = await service.CreateAsync(body);
             return StatusCode(response.StatusCode, new { response.Result });
         }
@@ -51,6 +52,17 @@ namespace api_infor_cell.src.Controllers
         {
             if (body == null) return BadRequest("Dados inválidos.");
             ResponseApi<ServiceOrder?> response = await service.UpdateAsync(body);
+            body.UpdatedBy = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+            return StatusCode(response.StatusCode, new { response.Result });
+        }
+        
+        [Authorize]
+        [HttpPut("status")]
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateStatusServiceOrderDTO body)
+        {
+            if (body == null) return BadRequest("Dados inválidos.");
+            ResponseApi<ServiceOrder?> response = await service.UpdateStatusAsync(body);
+            body.UpdatedBy = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             return StatusCode(response.StatusCode, new { response.Result });
         }
 

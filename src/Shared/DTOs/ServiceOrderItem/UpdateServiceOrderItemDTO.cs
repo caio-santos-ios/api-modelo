@@ -13,9 +13,7 @@ namespace api_infor_cell.src.Shared.DTOs
         public decimal Cost { get; set; }
         public decimal Total { get; set; }
         public string SupplierId { get; set; } = string.Empty;
-        public string SupplierName { get; set; } = string.Empty;
         public string TechnicianId { get; set; } = string.Empty;
-        public string TechnicianName { get; set; } = string.Empty;
         public decimal Commission { get; set; }
         public string CommissionType { get; set; } = string.Empty;
     }

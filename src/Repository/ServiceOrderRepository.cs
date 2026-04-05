@@ -24,13 +24,12 @@ namespace api_infor_cell.src.Repository
                 new("$limit", pagination.Limit),
 
                 MongoUtil.Lookup("customers", ["$customerId"], ["$_id"], "_customer", [["deleted", false]], 1),
-                MongoUtil.Lookup("situations", ["$status"], ["$_id"], "_situation", [["deleted", false]], 1),
+                MongoUtil.Lookup("users", ["$createdBy"], ["$_id"], "_user", [["deleted", false]], 1),
                 
                 new("$addFields", new BsonDocument {
                     {"id", new BsonDocument("$toString", "$_id")},
                     {"customerName", MongoUtil.First("_customer.tradeName")},
-                    {"situationName", MongoUtil.First("_situation.name")},
-                    {"situationStyle", MongoUtil.First("_situation.style")}
+                    {"userName", MongoUtil.First("_user.name")},
                 }),
 
                 new("$match", pagination.PipelineFilter),
@@ -40,6 +39,7 @@ namespace api_infor_cell.src.Repository
                 {
                     {"_id", 0},
                     {"_customer", 0},
+                    {"_user", 0}
                 }),
                 
                 new("$sort", pagination.PipelineSort),
@@ -150,13 +150,13 @@ namespace api_infor_cell.src.Repository
             var filters = new List<FilterDefinition<ServiceOrder>>
             {
                 filterBuilder.Eq(x => x.Deleted, false),
-                filterBuilder.Eq(x => x.IsClosed, true),
-                filterBuilder.Gt(x => x.WarrantyUntil, DateTime.UtcNow),
+                // filterBuilder.Eq(x => x.IsClosed, true),
+                // filterBuilder.Gt(x => x.WarrantyUntil, DateTime.UtcNow),
             };
 
             if (!string.IsNullOrEmpty(serialImei))
             {
-                filters.Add(filterBuilder.Eq(x => x.Device.SerialImei, serialImei));
+                // filters.Add(filterBuilder.Eq(x => x.Device.SerialImei, serialImei));
             }
             else if (!string.IsNullOrEmpty(customerId))
             {
@@ -174,7 +174,7 @@ namespace api_infor_cell.src.Repository
             var dict = (IDictionary<string, object>)result;
             dict["id"] = found.Id;
             dict["status"] = found.Status;
-            dict["warrantyUntil"] = found.WarrantyUntil?.ToString("yyyy-MM-ddTHH:mm:ssZ") ?? "";
+            // dict["warrantyUntil"] = found.WarrantyUntil?.ToString("yyyy-MM-ddTHH:mm:ssZ") ?? "";
             dict["matchType"] = !string.IsNullOrEmpty(serialImei) ? "serial" : "customer";
 
             return new(result);

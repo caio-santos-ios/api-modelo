@@ -6,7 +6,7 @@ using api_infor_cell.src.Shared.Utils;
 
 namespace api_infor_cell.src.Services
 {
-    public class ServiceOrderItemService(IServiceOrderItemRepository repository) : IServiceOrderItemService
+    public class ServiceOrderItemService(IServiceOrderItemRepository repository, IServiceOrderRepository serviceOrderRepository) : IServiceOrderItemService
     {
         #region READ
         public async Task<PaginationApi<List<dynamic>>> GetAllAsync(GetAllDTO request)
@@ -56,15 +56,29 @@ namespace api_infor_cell.src.Services
                     Cost = request.Cost,
                     Total = request.Quantity * request.Price,
                     SupplierId = request.SupplierId,
-                    SupplierName = request.SupplierName,
                     TechnicianId = request.TechnicianId,
-                    TechnicianName = request.TechnicianName,
                     Commission = request.Commission,
                     CommissionType = request.CommissionType,
                     CreatedBy = request.CreatedBy,
                 };
+
                 ResponseApi<ServiceOrderItem?> response = await repository.CreateAsync(item);
                 if (response.Data is null) return new(null, 400, "Falha ao criar item.");
+
+                ResponseApi<List<ServiceOrderItem>> items = await repository.GetByServiceOrderIdAsync(item.ServiceOrderId);
+                if(items.Data is not null)
+                {
+                    ResponseApi<ServiceOrder?> serviceOrder = await serviceOrderRepository.GetByIdAsync(item.ServiceOrderId);
+                    if(serviceOrder.Data is not null)
+                    {
+                        serviceOrder.Data.Value = items.Data.Sum(x => x.Total);
+                        serviceOrder.Data.UpdatedAt = DateTime.UtcNow;
+                        serviceOrder.Data.UpdatedBy = request.UpdatedBy;
+
+                        await serviceOrderRepository.UpdateAsync(serviceOrder.Data);
+                    }
+                }
+                
                 return new(response.Data, 201, "Item adicionado com sucesso.");
             }
             catch
@@ -92,9 +106,7 @@ namespace api_infor_cell.src.Services
                 item.Cost = request.Cost;
                 item.Total = request.Quantity * request.Price;
                 item.SupplierId = request.SupplierId;
-                item.SupplierName = request.SupplierName;
                 item.TechnicianId = request.TechnicianId;
-                item.TechnicianName = request.TechnicianName;
                 item.Commission = request.Commission;
                 item.CommissionType = request.CommissionType;
                 item.UpdatedAt = DateTime.UtcNow;
@@ -102,6 +114,21 @@ namespace api_infor_cell.src.Services
 
                 ResponseApi<ServiceOrderItem?> response = await repository.UpdateAsync(item);
                 if (!response.IsSuccess) return new(null, 400, "Falha ao atualizar item");
+                
+                ResponseApi<List<ServiceOrderItem>> items = await repository.GetByServiceOrderIdAsync(item.ServiceOrderId);
+                if(items.Data is not null)
+                {
+                    ResponseApi<ServiceOrder?> serviceOrder = await serviceOrderRepository.GetByIdAsync(item.ServiceOrderId);
+                    if(serviceOrder.Data is not null)
+                    {
+                        serviceOrder.Data.Value = items.Data.Sum(x => x.Total);
+                        serviceOrder.Data.UpdatedAt = DateTime.UtcNow;
+                        serviceOrder.Data.UpdatedBy = request.UpdatedBy;
+
+                        await serviceOrderRepository.UpdateAsync(serviceOrder.Data);
+                    }
+                }
+
                 return new(response.Data, 200, "Item atualizado com sucesso");
             }
             catch

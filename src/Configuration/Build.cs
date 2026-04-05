@@ -33,12 +33,15 @@ namespace api_infor_cell.src.Configuration
             builder.Services.AddTransient<IDashboardService, DashboardService>();
             builder.Services.AddTransient<IDashboardRepository, DashboardRepository>();
 
-
             // MASTER DATA
             builder.Services.AddTransient<IUserService, UserService>();
             builder.Services.AddTransient<IUserRepository, UserRepository>();
             builder.Services.AddTransient<IProfileUserService, ProfileUserService>();
             builder.Services.AddTransient<IProfileUserRepository, ProfileUserRepository>();
+            builder.Services.AddTransient<ICustomerService, CustomerService>();
+            builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
+            builder.Services.AddTransient<ISupplierService, SupplierService>();
+            builder.Services.AddTransient<ISupplierRepository, SupplierRepository>();
 
             // FINANCIAL
             builder.Services.AddTransient<IAccountReceivableService, AccountReceivableService>();

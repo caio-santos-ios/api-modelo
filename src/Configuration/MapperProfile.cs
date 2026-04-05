@@ -15,6 +15,12 @@ namespace api_infor_cell.src.Configuration
             
             CreateMap<CreateProfileUserDTO, ProfileUser>().ReverseMap();
             CreateMap<UpdateProfileUserDTO, ProfileUser>().ReverseMap();
+            
+            CreateMap<CreateCustomerDTO, Customer>().ReverseMap();
+            CreateMap<UpdateCustomerDTO, Customer>().ReverseMap();
+
+            CreateMap<CreateSupplierDTO, Supplier>().ReverseMap();
+            CreateMap<UpdateSupplierDTO, Supplier>().ReverseMap(); 
             #endregion
 
             #region FINANCIAL

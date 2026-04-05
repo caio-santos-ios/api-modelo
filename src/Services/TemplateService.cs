@@ -28,9 +28,9 @@ namespace api_infor_cell.src.Services
                 int count = await repository.GetCountDocumentsAsync(pagination);
                 return new(templates.Data, count, pagination.PageNumber, pagination.PageSize);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         public async Task<ResponseApi<dynamic?>> GetByIdAggregateAsync(string id)
@@ -41,9 +41,9 @@ namespace api_infor_cell.src.Services
                 if(Template.Data is null) return new(null, 404, "Template não encontrada");
                 return new(Template.Data);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         public async Task<ResponseApi<List<dynamic>>> GetSelectAsync(GetAllDTO request)
@@ -54,9 +54,9 @@ namespace api_infor_cell.src.Services
                 ResponseApi<List<dynamic>> template = await repository.GetSelectAsync(pagination);
                 return new(template.Data);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         } 
         #endregion
@@ -97,9 +97,9 @@ namespace api_infor_cell.src.Services
                 if(!response.IsSuccess) return new(null, 400, "Falha ao atualizar");
                 return new(response.Data, 200, "Atualizado com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         public async Task<ResponseApi<Template?>> SendAsync(SendTemplateDTO request)
@@ -137,9 +137,9 @@ namespace api_infor_cell.src.Services
 
                 return new(templateResponse.Data, 200, "Enviado com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion
@@ -153,9 +153,9 @@ namespace api_infor_cell.src.Services
                 if(!template.IsSuccess) return new(null, 400, template.Message);
                 return new(null, 204, "Excluída com sucesso");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion 

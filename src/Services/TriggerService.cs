@@ -25,9 +25,9 @@ namespace api_infor_cell.src.Services
                 int count = await repository.GetCountDocumentsAsync(pagination);
                 return new(triggers.Data, count, pagination.PageNumber, pagination.PageSize);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -39,9 +39,9 @@ namespace api_infor_cell.src.Services
                 if (trigger.Data is null) return new(null, 404, "Trigger não encontrada.");
                 return new(trigger.Data);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -53,9 +53,9 @@ namespace api_infor_cell.src.Services
                 ResponseApi<List<dynamic>> triggers = await repository.GetSelectAsync(pagination);
                 return new(triggers.Data);
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion
@@ -80,9 +80,9 @@ namespace api_infor_cell.src.Services
 
                 return new(response.Data, 201, "Trigger criada com sucesso.");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion
@@ -113,9 +113,9 @@ namespace api_infor_cell.src.Services
 
                 return new(response.Data, 200, "Trigger atualizada com sucesso.");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion
@@ -129,9 +129,9 @@ namespace api_infor_cell.src.Services
                 if (!trigger.IsSuccess) return new(null, 400, trigger.Message);
                 return new(null, 204, "Trigger excluída com sucesso.");
             }
-            catch
+            catch(Exception ex)
             {
-                return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
         #endregion

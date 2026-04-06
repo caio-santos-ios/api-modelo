@@ -85,8 +85,8 @@ namespace api_infor_cell.src.Repository
                     overdueCount,
                     cancelAmount,
                     cancelCount,
-                    totalAmount,
-                    totalCount
+                    totalAmount = openAmount + overdueAmount + cancelAmount,
+                    totalCount = openCount + overdueCount + cancelCount
                 };
 
                 return new(data);

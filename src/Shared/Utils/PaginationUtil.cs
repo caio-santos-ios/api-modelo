@@ -63,6 +63,11 @@ namespace api_infor_cell.src.Shared.Utils
                         field = expressions[0];
                     };
 
+                    if(comparison.Equals("$regex")) 
+                    {
+                        type = "string";
+                    }
+
                     switch (type)
                     {
                         case "bool":

@@ -29,10 +29,10 @@ namespace api_infor_cell.src.Repository
 
                 long overdueCount = await context.AccountsReceivable.Find(x => !x.Deleted && x.DueDate.Date < DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status != "Cancelado" && x.Status != "Recebido").CountDocumentsAsync();
                 
-                List<AccountReceivable> totalAmountList = await context.AccountsReceivable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date).ToListAsync();
-                decimal totalAmount = totalAmountList.Sum(x => x.Amount);
+                // List<AccountReceivable> totalAmountList = await context.AccountsReceivable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date).ToListAsync();
+                // decimal totalAmount = totalAmountList.Sum(x => x.Amount);
 
-                long totalCount = await context.AccountsReceivable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date).CountDocumentsAsync();
+                // long totalCount = await context.AccountsReceivable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date).CountDocumentsAsync();
                 
                 dynamic data = new
                 {
@@ -42,8 +42,8 @@ namespace api_infor_cell.src.Repository
                     overdueCount,
                     cancelAmount,
                     cancelCount,
-                    totalAmount,
-                    totalCount
+                    totalAmount = openAmount + overdueAmount + cancelAmount,
+                    totalCount = openCount + overdueCount + cancelCount
                 };
 
                 return new(data);

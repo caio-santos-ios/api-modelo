@@ -7,5 +7,6 @@ namespace api_infor_cell.src.Shared.DTOs
         public int StatusCode {get;set;} = 0;
         public string Message {get;set;} = string.Empty;
         public double Time {get;set;} = 0;
+        public bool Audit {get;set;} = false;
     }
 }

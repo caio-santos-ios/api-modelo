@@ -16,6 +16,11 @@ namespace api_infor_cell.src.Filters
             "/api/auth/register",
             "/api/notifications/send"
         ];
+        private static readonly HashSet<string> AuditPaths =
+        [
+            "/api/customers",
+            "/api/suppliers",
+        ];
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
@@ -41,7 +46,12 @@ namespace api_infor_cell.src.Filters
             string? userId = context.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             string method = context.HttpContext.Request.Method.ToUpper();
-            bool isAudit  = method is "POST" or "PUT" or "DELETE" or "PATCH";
+            bool isAudit  = false;
+
+            if(AuditPaths.Contains(path))
+            {
+                isAudit = true;
+            }
 
             if (executed.Exception is not null && !executed.ExceptionHandled)
             {
@@ -57,6 +67,7 @@ namespace api_infor_cell.src.Filters
                 StatusCode = statusCode,
                 CreatedBy  = userId ?? string.Empty,
                 Time       = Math.Round(sw.Elapsed.TotalSeconds, 3),
+                Audit = isAudit
             });
         }
 

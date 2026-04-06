@@ -54,9 +54,9 @@ namespace api_infor_cell.src.Repository
         {
             try
             {
-                List<AccountPayable> openAmountList = await context.AccountsPayable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Em Aberto" || x.Status == "Pago Parcial")).ToListAsync();
+                List<AccountPayable> openAmountList = await context.AccountsPayable.Find(x => !x.Deleted && x.DueDate.Date > DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Em Aberto" || x.Status == "Pago Parcial")).ToListAsync();
                 decimal openAmount = openAmountList.Sum(x => x.Amount) - openAmountList.Sum(x => x.AmountPaid);
-                long openCount = await context.AccountsPayable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Em Aberto" || x.Status == "Pago Parcial")).CountDocumentsAsync();
+                long openCount = await context.AccountsPayable.Find(x => !x.Deleted && x.DueDate.Date > DateTime.UtcNow.Date && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && (x.Status == "Em Aberto" || x.Status == "Pago Parcial")).CountDocumentsAsync();
 
                 
                 List<AccountPayable> cancelAmountList = await context.AccountsPayable.Find(x => !x.Deleted && x.IssueDate.Date >= startDate.Date && x.IssueDate.Date <= endDate.Date && x.Status == "Cancelado").ToListAsync();

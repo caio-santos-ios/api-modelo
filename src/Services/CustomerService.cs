@@ -169,19 +169,31 @@ namespace api_infor_cell.src.Services
                 return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
-        public async Task<ResponseApi<Customer?>> UpdateMinimalAsync(CreateCustomerMinimalDTO request)
+        public async Task<ResponseApi<Customer?>> UpdateMinimalAsync(UpdateCustomerMinimalDTO request)
         {
             try
             {
                 if(string.IsNullOrEmpty(request.CorporateName)) return new(null, 400, request.Type == "F" ? "O Nome é obrigatório" : "A Razão Social é obrigatória");            
 
-                ResponseApi<Customer?> existedDocument = await repository.GetByDocumentAsync(request.Document, "");
-                string messageExited = request.Type == "F" ? "Este CPF já está sendo utilizado por outro Cliente" : "Este CNPJ já está sendo utilizado por outro Cliente";
-                if(existedDocument.Data is not null) return new(null, 400, messageExited);
+                // ResponseApi<Customer?> existedDocument = await repository.GetByDocumentAsync(request.Document, "");
+                // string messageExited = request.Type == "F" ? "Este CPF já está sendo utilizado por outro Cliente" : "Este CNPJ já está sendo utilizado por outro Cliente";
+                // if(existedDocument.Data is not null) return new(null, 400, messageExited);
 
-                ResponseApi<Customer?> existedEmail = await repository.GetByEmailAsync(request.Email, "");
-                if(existedEmail.Data is not null) return new(null, 400, "Este e-mail já está sendo utilizado por outro Cliente");
-                
+                // ResponseApi<Customer?> existedEmail = await repository.GetByEmailAsync(request.Email, "");
+                // if(existedEmail.Data is not null) return new(null, 400, "Este e-mail já está sendo utilizado por outro Cliente");
+                if(!string.IsNullOrEmpty(request.Document))
+                {
+                    ResponseApi<Customer?> existedDocument = await repository.GetByDocumentAsync(request.Document, request.Id);
+                    string messageExited = request.Type == "F" ? "Este CPF já está sendo utilizado por outro Cliente" : "Este CNPJ já está sendo utilizado por outro Cliente";
+                    if(existedDocument.Data is not null) return new(null, 400, messageExited);
+                }
+
+                if(!string.IsNullOrEmpty(request.Email))
+                {
+                    ResponseApi<Customer?> existedEmail = await repository.GetByEmailAsync(request.Email, request.Id);
+                    if(existedEmail.Data is not null) return new(null, 400, "Este e-mail já está sendo utilizado por outro Cliente");
+                }
+
                 ResponseApi<Customer?> response = await repository.CreateAsync(new()
                 {
                     CreatedBy = request.CreatedBy,

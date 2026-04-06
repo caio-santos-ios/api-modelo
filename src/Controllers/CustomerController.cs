@@ -70,7 +70,7 @@ namespace api_infor_cell.src.Controllers
 
         [Authorize]
         [HttpPut("minimal")]
-        public async Task<IActionResult> UpdateMinimal([FromBody] CreateCustomerMinimalDTO body)
+        public async Task<IActionResult> UpdateMinimal([FromBody] UpdateCustomerMinimalDTO body)
         {
             if (body == null) return BadRequest("Dados inválidos.");
 

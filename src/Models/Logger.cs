@@ -24,5 +24,8 @@ namespace api_infor_cell.src.Models
         
         [BsonElement("audit")]
         public bool Audit {get;set;} = false;
+
+        [BsonElement("time")]
+        public double Time {get;set;} = 0;
     }
 }

@@ -15,7 +15,7 @@ namespace api_infor_cell.src.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            PaginationApi<List<dynamic>> response = await service.GetAllAsync(new(Request.Query));
+            ResponseApi<PaginationApi<List<dynamic>>> response = await service.GetAllAsync(new(Request.Query));
             return StatusCode(response.StatusCode, new { response.Result });
         }
         

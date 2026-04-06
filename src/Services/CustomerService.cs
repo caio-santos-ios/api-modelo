@@ -10,14 +10,15 @@ namespace api_infor_cell.src.Services
     public class CustomerService(ICustomerRepository repository, IMapper _mapper) : ICustomerService
     {
         #region READ
-        public async Task<PaginationApi<List<dynamic>>> GetAllAsync(GetAllDTO request)
+        public async Task<ResponseApi<PaginationApi<List<dynamic>>>> GetAllAsync(GetAllDTO request)
         {
             try
             {
                 PaginationUtil<Customer> pagination = new(request.QueryParams);
                 ResponseApi<List<dynamic>> customers = await repository.GetAllAsync(pagination);
                 int count = await repository.GetCountDocumentsAsync(pagination);
-                return new(customers.Data, count, pagination.PageNumber, pagination.PageSize);
+                PaginationApi<List<dynamic>> data = new(customers.Data, count, pagination.PageNumber, pagination.PageSize);
+                return new(data, 200, "Clientes listados com sucesso");
             }
             catch(Exception ex)
             {

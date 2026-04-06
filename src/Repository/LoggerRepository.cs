@@ -42,6 +42,7 @@ namespace api_infor_cell.src.Repository
                         {"path", 1},
                         {"createdAt", 1},
                         {"userName", 1},
+                        {"time", 1},
                     }),
                     new("$sort", pagination.PipelineSort),
                 };

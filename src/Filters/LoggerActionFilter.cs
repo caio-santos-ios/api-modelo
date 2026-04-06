@@ -19,7 +19,11 @@ namespace api_infor_cell.src.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            
             ActionExecutedContext executed = await next();
+
+            sw.Stop();
 
             string path = context.HttpContext.Request.Path.Value?.ToLower() ?? "";
 
@@ -52,6 +56,7 @@ namespace api_infor_cell.src.Filters
                 Message    = message,
                 StatusCode = statusCode,
                 CreatedBy  = userId ?? string.Empty,
+                Time       = Math.Round(sw.Elapsed.TotalSeconds, 3),
             });
         }
 

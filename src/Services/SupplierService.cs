@@ -10,14 +10,15 @@ namespace api_infor_cell.src.Services
     public class SupplierService(ISupplierRepository repository, IMapper _mapper) : ISupplierService
     {
         #region READ
-        public async Task<PaginationApi<List<dynamic>>> GetAllAsync(GetAllDTO request)
+        public async Task<ResponseApi<PaginationApi<List<dynamic>>>> GetAllAsync(GetAllDTO request)
         {
             try
             {
                 PaginationUtil<Supplier> pagination = new(request.QueryParams);
                 ResponseApi<List<dynamic>> suppliers = await repository.GetAllAsync(pagination);
                 int count = await repository.GetCountDocumentsAsync(pagination);
-                return new(suppliers.Data, count, pagination.PageNumber, pagination.PageSize);
+                PaginationApi<List<dynamic>> data = new(suppliers.Data, count, pagination.PageNumber, pagination.PageSize);
+                return new(data, 200, "Fornecedores listados com sucesso");
             }
             catch(Exception ex)
             {

@@ -51,6 +51,9 @@ namespace api_infor_cell.src.Configuration
 
             CreateMap<CreateTriggerDTO, Trigger>().ReverseMap();
             CreateMap<UpdateTriggerDTO, Trigger>().ReverseMap();
+
+            CreateMap<CreateAttachmentDTO, Attachment>().ReverseMap();
+            CreateMap<UpdateAttachmentDTO, Attachment>().ReverseMap();
             #endregion
         }
     }

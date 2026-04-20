@@ -56,6 +56,7 @@ namespace api_infor_cell.src.Configuration
         public IMongoCollection<Template> Templates => Database.GetCollection<Template>("templates");
         public IMongoCollection<Trigger> Triggers => Database.GetCollection<Trigger>("triggers");
         public IMongoCollection<Notification> Notifications => Database.GetCollection<Notification>("notifications");
+        public IMongoCollection<Attachment> Attachments => Database.GetCollection<Attachment>("attachments");
         #endregion
         
         #region CHAT

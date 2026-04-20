@@ -66,11 +66,12 @@ namespace api_infor_cell.src.Configuration
             // SETTINGS
             builder.Services.AddScoped<ILoggerService, LoggerService>();
             builder.Services.AddScoped<ILoggerRepository, LoggerRepository>();
-
             builder.Services.AddTransient<ITemplateService, TemplateService>();
             builder.Services.AddTransient<ITemplateRepository, TemplateRepository>();
             builder.Services.AddTransient<ITriggerService, TriggerService>();
             builder.Services.AddTransient<ITriggerRepository, TriggerRepository>();
+            builder.Services.AddTransient<IAttachmentService, AttachmentService>();
+            builder.Services.AddTransient<IAttachmentRepository, AttachmentRepository>();
 
             // REALTIME
             builder.Services.AddTransient<INotificationService, NotificationService>();

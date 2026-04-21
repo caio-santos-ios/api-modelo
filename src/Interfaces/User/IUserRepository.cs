@@ -8,6 +8,7 @@ namespace api_infor_cell.src.Interfaces
     public interface IUserRepository
     {
         Task<ResponseApi<List<dynamic>>> GetAllAsync(PaginationUtil<User> pagination);
+        Task<ResponseApi<List<dynamic>>> GetSelectAsync(PaginationUtil<User> pagination);
         Task<ResponseApi<dynamic?>> GetByIdAggregateAsync(string id);
         Task<ResponseApi<dynamic?>> GetLoggedAsync(string id);
         Task<ResponseApi<User?>> GetByIdAsync(string id);

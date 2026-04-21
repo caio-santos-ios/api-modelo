@@ -20,6 +20,15 @@ namespace api_infor_cell.src.Filters
         [
             "/api/customers",
             "/api/suppliers",
+            "/api/users",
+            "/api/profile-users",
+            "/api/service-orders",
+            "/api/payment-methods",
+            "/api/accounts-receivable",
+            "/api/accounts-receivable",
+            "/api/accounts-payable",
+            "/api/chart-of-accounts",
+            "/api/dre",
         ];
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)

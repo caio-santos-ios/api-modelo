@@ -11,14 +11,30 @@ namespace api_infor_cell.src.Services
     public class UserService(IUserRepository userRepository, IProfileUserRepository profileUserRepository, MailHandler mailHandler, UploadHandler uploadHander) : IUserService
     {
         #region READ
-        public async Task<PaginationApi<List<dynamic>>> GetAllAsync(GetAllDTO request, string userId)
+        public async Task<ResponseApi<PaginationApi<List<dynamic>>>> GetAllAsync(GetAllDTO request)
         {
             try
             {
                 PaginationUtil<User> pagination = new(request.QueryParams);
                 ResponseApi<List<dynamic>> users = await userRepository.GetAllAsync(pagination);
                 int count = await userRepository.GetCountDocumentsAsync(pagination);
-                return new(users.Data, count, pagination.PageNumber, pagination.PageSize);
+                PaginationApi<List<dynamic>> data = new(users.Data, count, pagination.PageNumber, pagination.PageSize);
+                return new(data, 200, "Usuários listados com sucesso");
+            }
+            catch(Exception ex)
+            {
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
+            }
+        }
+        
+        public async Task<ResponseApi<List<dynamic>>> GetSelectAsync(GetAllDTO request)
+        {
+            try
+            {
+                PaginationUtil<User> pagination = new(request.QueryParams);
+                ResponseApi<List<dynamic>> users = await userRepository.GetAllAsync(pagination);
+                int count = await userRepository.GetCountDocumentsAsync(pagination);
+                return new(users.Data, 200, "Usuários listados com sucesso");
             }
             catch(Exception ex)
             {

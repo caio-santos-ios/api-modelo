@@ -16,8 +16,15 @@ namespace api_infor_cell.src.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-            PaginationApi<List<dynamic>> response = await service.GetAllAsync(new(Request.Query), userId);
+            ResponseApi<PaginationApi<List<dynamic>>> response = await service.GetAllAsync(new(Request.Query));
+            return StatusCode(response.StatusCode, new { response.Message, response.Result });
+        }
+        
+        [Authorize]
+        [HttpGet("select")]
+        public async Task<IActionResult> GetSelect()
+        {
+            ResponseApi<List<dynamic>> response = await service.GetSelectAsync(new(Request.Query));
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
         

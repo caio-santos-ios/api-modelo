@@ -49,14 +49,7 @@ namespace api_infor_cell.src.Services
                 AuthResponse response = new()
                 {
                     Token = GenerateJwtToken(user),
-                    RefreshToken = GenerateJwtToken(user, true),
-                    Name = user.Name,
-                    Id = user.Id,
-                    Admin = user.Admin,
-                    Modules = user.Modules,
-                    Photo = user.Photo,
-                    Email = user.Email,
-                    Master = user.Master
+                    RefreshToken = GenerateJwtToken(user, true)
                 };
 
                 return new(response, 200, "Login realizado com sucesso");
@@ -319,7 +312,7 @@ namespace api_infor_cell.src.Services
             }
         }
 
-        private static string GenerateJwtToken(User user, bool refresh = false)
+        public string GenerateJwtToken(User user, bool refresh = false)
         {
             string? SecretKey = Environment.GetEnvironmentVariable("SECRET_KEY") ?? "";
             string? Issuer = Environment.GetEnvironmentVariable("ISSUER") ?? "";

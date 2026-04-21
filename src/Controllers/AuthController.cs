@@ -10,7 +10,7 @@ namespace api_infor_cell.src.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    public class AuthController(IAuthService service, ILoggerService loggerService) : ControllerBase
+    public class AuthController(IAuthService service) : ControllerBase
     {
         [HttpPost]
         [Route("login")]
@@ -19,14 +19,6 @@ namespace api_infor_cell.src.Controllers
             if (body == null) return BadRequest("Dados inválidos");
 
             ResponseApi<AuthResponse> response = await service.LoginAsync(body);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/auth/login",
-                Method = "POST",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode,
-                CreatedBy = response.Data is not null ? response.Data.Id : ""
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
         
@@ -37,14 +29,6 @@ namespace api_infor_cell.src.Controllers
             if (body == null) return BadRequest("Dados inválidos");
 
             ResponseApi<dynamic> response = await service.RegisterAsync(body);
-            await loggerService.CreateAsync(new CreateLoggerDTO
-            {
-                Path = "/api/auth/register",
-                Method = "POST",
-                Message = response.Message ?? "",
-                StatusCode = response.StatusCode,
-                CreatedBy = response.Data is not null ? response.Data.Id : ""
-            });
             return StatusCode(response.StatusCode, new { response.Result });
         }
         

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
+using api_infor_cell.src.Responses;
 using api_infor_cell.src.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -79,6 +80,14 @@ namespace api_infor_cell.src.Controllers
         public async Task<IActionResult> SavePhotoProfileAsync([FromForm] SaveUserPhotoDTO user)
         {
             ResponseApi<User?> response = await service.SavePhotoProfileAsync(user);
+            return StatusCode(response.StatusCode, new { response.Message, response.Result });
+        }
+        
+        [Authorize]
+        [HttpPut("profile-photo-token")]
+        public async Task<IActionResult> SavePhotoProfileTokenAsync([FromForm] SaveUserPhotoDTO user)
+        {
+            ResponseApi<AuthResponse?> response = await service.SavePhotoProfileTokenAsync(user);
             return StatusCode(response.StatusCode, new { response.Message, response.Result });
         }
         

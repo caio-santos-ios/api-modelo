@@ -1,5 +1,6 @@
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
+using api_infor_cell.src.Responses;
 using api_infor_cell.src.Shared.DTOs;
 
 namespace api_infor_cell.src.Interfaces
@@ -12,6 +13,7 @@ namespace api_infor_cell.src.Interfaces
         Task<ResponseApi<dynamic?>> GetLoggedAsync(string id);
         Task<ResponseApi<User?>> CreateAsync(CreateUserDTO user);
         Task<ResponseApi<User?>> UpdateAsync(UpdateUserDTO user);
+        Task<ResponseApi<AuthResponse?>> SavePhotoProfileTokenAsync(SaveUserPhotoDTO user);
         Task<ResponseApi<User?>> SavePhotoProfileAsync(SaveUserPhotoDTO user);
         Task<ResponseApi<User?>> ResendCodeAccessAsync(UpdateUserDTO user);
         Task<ResponseApi<User?>> RemovePhotoProfileAsync(string id);

@@ -2,13 +2,20 @@ using api_infor_cell.src.Handlers;
 using api_infor_cell.src.Interfaces;
 using api_infor_cell.src.Models;
 using api_infor_cell.src.Models.Base;
+using api_infor_cell.src.Responses;
 using api_infor_cell.src.Shared.DTOs;
 using api_infor_cell.src.Shared.Utils;
 using api_infor_cell.src.Shared.Validators;
 
 namespace api_infor_cell.src.Services
 {
-    public class UserService(IUserRepository userRepository, IProfileUserRepository profileUserRepository, MailHandler mailHandler, UploadHandler uploadHander) : IUserService
+    public class UserService(
+        IUserRepository userRepository, 
+        IProfileUserRepository profileUserRepository,
+        IAuthService authService,
+        MailHandler mailHandler, 
+        UploadHandler uploadHander
+    ) : IUserService
     {
         #region READ
         public async Task<ResponseApi<PaginationApi<List<dynamic>>>> GetAllAsync(GetAllDTO request)
@@ -213,6 +220,29 @@ namespace api_infor_cell.src.Services
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
                 if(!response.IsSuccess) return new(null, 400, "Falha ao salvar foto de perfil");
                 return new(new () { Photo = response.Data!.Photo }, 200, "Foto de perfil salva com sucesso");
+            }
+            catch(Exception ex)
+            {
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
+            }
+        }
+        public async Task<ResponseApi<AuthResponse?>> SavePhotoProfileTokenAsync(SaveUserPhotoDTO request)
+        {
+            try
+            {
+                if (request.Photo == null || request.Photo.Length == 0) return new(null, 400, "Falha ao salvar foto de perfil");
+
+                ResponseApi<User?> user = await userRepository.GetByIdAsync(request.Id);
+                if(user.Data is null) return new(null, 404, "Falha ao salvar foto de perfil");
+
+                string uriPhoto = await uploadHander.UploadAttachment("users", request.Photo, "/api/users/photo-profile");
+                user.Data.UpdatedAt = DateTime.UtcNow;
+                user.Data.Photo = uriPhoto;
+
+                ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
+                if(!response.IsSuccess) return new(null, 400, "Falha ao salvar foto de perfil");
+
+                return new(new() { Token = authService.GenerateJwtToken(user.Data), RefreshToken = authService.GenerateJwtToken(user.Data, true) }, 200, "Foto de perfil salva com sucesso");
             }
             catch(Exception ex)
             {

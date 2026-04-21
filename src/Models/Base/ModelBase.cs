@@ -27,5 +27,8 @@ namespace api_infor_cell.src.Models.Base
         
         [BsonElement("deletedBy")]
         public string DeletedBy {get;set;} = string.Empty;
+        
+        [BsonElement("companyId")]
+        public string CompanyId {get;set;} = string.Empty;
     }
 }

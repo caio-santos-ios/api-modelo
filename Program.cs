@@ -153,6 +153,7 @@ if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
 
 app.UseStaticFiles();
 app.UseAuthentication();
+app.UseMiddleware<CompanyQueryMiddleware>();
 app.UseAuthorization();
 
 app.MapHub<NotificationHub>("/hubs/notifications");

@@ -60,7 +60,7 @@ namespace api_infor_cell.src.Services
             try
             {
                 chartOfAccounts.CreatedAt = DateTime.UtcNow;
-                string code = await countHandler.NextCountAsync("chart-of-account");
+                string code = await countHandler.NextCountAsync("chart-of-account", chartOfAccounts.CompanyId);
                 ResponseApi<long> codeDRE = await repository.GetNextCodeAsync(chartOfAccounts.Type, chartOfAccounts.GroupDRE);
                 chartOfAccounts.Code = $"{chartOfAccounts.Account}.{codeDRE.Data.ToString().PadLeft(4, '0')}";
 

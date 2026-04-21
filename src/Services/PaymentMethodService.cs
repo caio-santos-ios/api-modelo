@@ -61,7 +61,7 @@ namespace api_infor_cell.src.Services
             {
                 PaymentMethod paymentMethod = _mapper.Map<PaymentMethod>(request);
 
-                paymentMethod.Code = await countHandler.NextCountAsync("payment-method");
+                paymentMethod.Code = await countHandler.NextCountAsync("payment-method", request.CompanyId);
 
                 ResponseApi<PaymentMethod?> response = await repository.CreateAsync(paymentMethod);
 

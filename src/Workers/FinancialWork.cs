@@ -116,7 +116,7 @@ namespace api_infor_cell.src.Workers
 
                     AccountPayable newEntry = new()
                     {
-                        Code             = await countHandler.NextCountAsync("account-payable"),
+                        Code             = await countHandler.NextCountAsync("account-payable", origin.CompanyId),
                         OriginId         = origin.Id,
                         OriginType       = "recurrent",
                         SupplierId       = origin.SupplierId,

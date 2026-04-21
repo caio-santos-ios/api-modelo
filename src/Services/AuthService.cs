@@ -11,10 +11,11 @@ using api_infor_cell.src.Handlers;
 using api_infor_cell.src.Shared.Templates;
 using api_infor_cell.src.Shared.Validators;
 using api_infor_cell.src.Shared.Utils;
+using System.Text.Json;
 
 namespace api_infor_cell.src.Services
 {
-    public class AuthService(IUserRepository userRepository, MailHandler mailHandler, MailTemplate mailTemplate) : IAuthService
+    public class AuthService(IUserRepository userRepository, ICompanyRepository companyRepository, MailHandler mailHandler, MailTemplate mailTemplate) : IAuthService
     {
         public async Task<ResponseApi<AuthResponse>> LoginAsync(LoginDTO request)
         {
@@ -22,15 +23,16 @@ namespace api_infor_cell.src.Services
             {
                 if (string.IsNullOrEmpty(request.Email)) return new(null, 400, "E-mail é obrigatório");
                 if (string.IsNullOrEmpty(request.Password)) return new(null, 400, "Senha é obrigatória");
-                
+
                 ResponseApi<User?> res = await GetUserToken(request.Email);
-                if(res.Data is null) return new(null, 400, res.Message);
-                
+                if (res.Data is null) return new(null, 400, res.Message);
+
                 User user = res.Data;
 
-                if (!user.ValidatedAccess) {
+                if (!user.ValidatedAccess)
+                {
                     dynamic access = Util.GenerateCodeAccess();
-                    
+
                     res.Data.CodeAccess = access.CodeAccess;
                     res.Data.CodeAccessExpiration = access.CodeAccessExpiration;
 
@@ -38,30 +40,30 @@ namespace api_infor_cell.src.Services
 
                     await mailHandler.SendMailAsync(request.Email, "Confirmar Conta", await mailTemplate.NewLinkCodeConfirmAccount(res.Data.Name, access.CodeAccess));
                     return new(null, 400, "Conta não confirmada. Verifique seu e-mail.");
-                } 
+                }
                 if (user.Blocked) return new(null, 400, "Conta bloqueada. Entre em contato com o suporte.");
 
                 bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
-                if(!isValid) return new(null, 400, "Dados incorretos");
+                if (!isValid) return new(null, 400, "Dados incorretos");
 
-                AuthResponse response = new ()
+                AuthResponse response = new()
                 {
-                    Token = GenerateJwtToken(user), 
-                    RefreshToken = GenerateJwtToken(user, true), 
-                    Name = user.Name, 
-                    Id = user.Id, 
-                    Admin = user.Admin, 
-                    Modules = user.Modules, 
-                    Photo = user.Photo, 
+                    Token = GenerateJwtToken(user),
+                    RefreshToken = GenerateJwtToken(user, true),
+                    Name = user.Name,
+                    Id = user.Id,
+                    Admin = user.Admin,
+                    Modules = user.Modules,
+                    Photo = user.Photo,
                     Email = user.Email,
                     Master = user.Master
                 };
 
                 return new(response, 200, "Login realizado com sucesso");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -73,11 +75,26 @@ namespace api_infor_cell.src.Services
                 if (string.IsNullOrEmpty(request.Email)) return new(null, 400, "E-mail é obrigatório");
                 if (string.IsNullOrEmpty(request.Password)) return new(null, 400, "Senha é obrigatória");
                 if (!request.PrivacyPolicy) return new(null, 400, "Aceitar os Termos e Condições e nossa Política de Privacidade é obrigatório");
-                
-                ResponseApi<User?> isEmail = await userRepository.GetByEmailAsync(request.Email);
-                if(isEmail.Data is not null || !Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");
 
-                if(Validator.IsReliable(request.Password).Equals("Ruim")) return new(null, 400, $"Senha é muito fraca");
+                ResponseApi<User?> isEmail = await userRepository.GetByEmailAsync(request.Email);
+                if (isEmail.Data is not null || !Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");
+
+                if (Validator.IsReliable(request.Password).Equals("Ruim")) return new(null, 400, $"Senha é muito fraca");
+
+                Company company = new()
+                {
+                    Active = true,
+                    Deleted = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    DeletedAt = null,
+                    CreatedBy = "",
+                    UpdatedBy = "",
+                    DeletedBy = "",
+                    Name = request.Name
+                };
+
+                await companyRepository.CreateAsync(company);
 
                 dynamic access = Util.GenerateCodeAccess(5);
 
@@ -90,23 +107,24 @@ namespace api_infor_cell.src.Services
                     CodeAccess = access.CodeAccess,
                     CodeAccessExpiration = access.CodeAccessExpiration,
                     ValidatedAccess = false,
-                    Modules = [],
+                    Modules = Util.ListModules(),
                     Admin = true,
                     Master = false,
                     Blocked = false,
-                    Role = Enums.User.RoleEnum.User
+                    Role = Enums.User.RoleEnum.Admin,
+                    CompanyId = company.Id
                 };
 
                 ResponseApi<User?> response = await userRepository.CreateAsync(user);
-                if(response.Data is null) return new(null, 400, "Falha ao criar conta.");
+                if (response.Data is null) return new(null, 400, "Falha ao criar conta.");
 
                 await mailHandler.SendMailAsync(request.Email, "Código de Confirmação", await mailTemplate.ConfirmAccount(request.Name, access.CodeAccess));
 
                 return new(null, 201, "Conta criada com sucesso, foi enviado o e-mail de confirmação.");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -115,24 +133,24 @@ namespace api_infor_cell.src.Services
             try
             {
                 if (string.IsNullOrEmpty(request.Code)) return new(null, 400, "Código de confirmação é obrigatório");
-                
-                ResponseApi<User?> user = await userRepository.GetByCodeAccessAsync(request.Code);
-                if(user.Data is null) return new(null, 400, "Código inválido.");
 
-                if(user.Data.CodeAccessExpiration < DateTime.UtcNow) return new(null, 400, "Código expirou, solicite um novo código.");
+                ResponseApi<User?> user = await userRepository.GetByCodeAccessAsync(request.Code);
+                if (user.Data is null) return new(null, 400, "Código inválido.");
+
+                if (user.Data.CodeAccessExpiration < DateTime.UtcNow) return new(null, 400, "Código expirou, solicite um novo código.");
 
                 user.Data.CodeAccess = "";
                 user.Data.CodeAccessExpiration = null;
                 user.Data.ValidatedAccess = true;
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
-                if(response.Data is null) return new(null, 400, "Falha ao solicitar novo código.");
-                
+                if (response.Data is null) return new(null, 400, "Falha ao solicitar novo código.");
+
                 return new(null, 200, "Conta verificada com sucesso.");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -141,9 +159,9 @@ namespace api_infor_cell.src.Services
             try
             {
                 if (string.IsNullOrEmpty(request.Email)) return new(null, 400, "E-mail é obrigatório");
-                
+
                 ResponseApi<User?> user = await userRepository.GetByEmailAsync(request.Email);
-                if(user.Data is null || !Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");
+                if (user.Data is null || !Validator.IsEmail(request.Email)) return new(null, 400, "E-mail inválido.");
 
                 dynamic access = Util.GenerateCodeAccess(5);
 
@@ -151,15 +169,15 @@ namespace api_infor_cell.src.Services
                 user.Data.CodeAccessExpiration = access.CodeAccessExpiration;
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
-                if(response.Data is null) return new(null, 400, "Falha ao solicitar novo código.");
+                if (response.Data is null) return new(null, 400, "Falha ao solicitar novo código.");
 
                 await mailHandler.SendMailAsync(request.Email, "Novo Código de Verificação", await mailTemplate.NewCodeConfirmAccount(user.Data.Name, access.CodeAccess));
 
                 return new(null, 200, "Novo código foi enviado.");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -178,7 +196,7 @@ namespace api_infor_cell.src.Services
                     ValidIssuer = Environment.GetEnvironmentVariable("ISSUER"),
                     ValidAudience = Environment.GetEnvironmentVariable("AUDIENCE"),
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET_KEY") ?? "")),
-                    ValidateLifetime = false 
+                    ValidateLifetime = false
                 };
 
                 var principal = handler.ValidateToken(token, validationParameters, out validatedToken);
@@ -191,7 +209,7 @@ namespace api_infor_cell.src.Services
 
                 var userId = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub || c.Type == ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId)) return new(null, 401, "Usuário não encontrado no token.");
-                
+
                 var email = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email || c.Type == ClaimTypes.Email)?.Value;
                 if (string.IsNullOrEmpty(email)) return new(null, 401, "Usuário não encontrado no token.");
 
@@ -207,9 +225,9 @@ namespace api_infor_cell.src.Services
                     RefreshToken = refreshToken
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -223,23 +241,23 @@ namespace api_infor_cell.src.Services
 
                 if (request.NewPassword != request.ConfirmPassword) return new(null, 400, "Nova senha e confirmação não coincidem");
 
-                if(Validator.IsReliable(request.NewPassword).Equals("Ruim")) return new(null, 400, $"Nova senha é muito fraca");
+                if (Validator.IsReliable(request.NewPassword).Equals("Ruim")) return new(null, 400, $"Nova senha é muito fraca");
 
                 ResponseApi<User?> user = await userRepository.GetByIdAsync(request.Id);
-                if(!user.IsSuccess || user.Data is null) return new(null, 400, "Falha ao alterar senha");
-                
+                if (!user.IsSuccess || user.Data is null) return new(null, 400, "Falha ao alterar senha");
+
                 bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.Data.Password);
-                if(!isValid) return new(null, 400, "Senha atual incorreta");
+                if (!isValid) return new(null, 400, "Senha atual incorreta");
 
                 user.Data.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
-                if(!response.IsSuccess) return new(null, 400, "Falha ao alterar senha");
+                if (!response.IsSuccess) return new(null, 400, "Falha ao alterar senha");
 
                 return new(null, 200, "Senha alterada com sucesso");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -248,7 +266,7 @@ namespace api_infor_cell.src.Services
             try
             {
                 ResponseApi<User?> responseUser = await userRepository.GetByEmailAsync(request.Email);
-                if(responseUser.Data is null) return new(null, 400, "Dados incorretos");
+                if (responseUser.Data is null) return new(null, 400, "Dados incorretos");
 
                 dynamic access = Util.GenerateCodeAccess();
 
@@ -260,13 +278,13 @@ namespace api_infor_cell.src.Services
                 await mailHandler.SendMailAsync(request.Email, "Redefinição de Senha", template);
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(responseUser.Data);
-                if(!response.IsSuccess) return new(null, 400, "Falha ao redefinir senha");
+                if (!response.IsSuccess) return new(null, 400, "Falha ao redefinir senha");
 
                 return new(null, 200, "Foi enviado um e-mail para redefinir sua senha");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -279,11 +297,11 @@ namespace api_infor_cell.src.Services
                 if (request.Password != request.NewPassword) return new(null, 400, "As senhas não podem ser diferentes");
 
                 ResponseApi<User?> responseUser = await userRepository.GetByCodeAccessAsync(request.CodeAccess);
-                if(responseUser.Data is null) return new(null, 400, "Falha ao alterar senha");
+                if (responseUser.Data is null) return new(null, 400, "Falha ao alterar senha");
 
-                if(responseUser.Data.CodeAccessExpiration < DateTime.UtcNow) return new(null, 400, "Código expirou, solicite um novo e-mail.");
-                
-                if(Validator.IsReliable(request.Password).Equals("Ruim")) return new(null, 400, $"Senha é muito fraca");
+                if (responseUser.Data.CodeAccessExpiration < DateTime.UtcNow) return new(null, 400, "Código expirou, solicite um novo e-mail.");
+
+                if (Validator.IsReliable(request.Password).Equals("Ruim")) return new(null, 400, $"Senha é muito fraca");
 
                 responseUser.Data.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
                 responseUser.Data.ValidatedAccess = true;
@@ -291,13 +309,13 @@ namespace api_infor_cell.src.Services
                 responseUser.Data.CodeAccessExpiration = null;
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(responseUser.Data);
-                if(!response.IsSuccess) return new(null, 400, "Falha ao redefinir senha");
-                
+                if (!response.IsSuccess) return new(null, 400, "Falha ao redefinir senha");
+
                 return new(null, 200, "Senha alterada com sucesso");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");            
+                return new(null, 500, $"Ocorreu um erro inesperado. Por favor, tente novamente mais tarde. {ex.Message}");
             }
         }
 
@@ -317,7 +335,14 @@ namespace api_infor_cell.src.Services
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("type", refresh ? "refresh" : "access"),
-                new Claim("name", user.Name)
+                new Claim("name", user.Name),
+                new Claim("photo", user.Photo),
+                new Claim("admin", user.Admin.ToString()),
+                new Claim("master", user.Master.ToString()),
+                new Claim("role", user.Role.ToString()),
+                new Claim("blocked", user.Blocked.ToString()),
+                new Claim("modules", JsonSerializer.Serialize(user.Modules)),
+                new Claim("companyId", user.CompanyId)
             ];
 
             SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
@@ -333,10 +358,10 @@ namespace api_infor_cell.src.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private async Task<ResponseApi<User?>> GetUserToken (string email)
+        private async Task<ResponseApi<User?>> GetUserToken(string email)
         {
             ResponseApi<User?> response = await userRepository.GetByEmailAsync(email);
-            if(response.Data is null) return new(null, 400, "Dados incorretos");
+            if (response.Data is null) return new(null, 400, "Dados incorretos");
 
             return new(response.Data);
         }

@@ -33,24 +33,20 @@ namespace api_infor_cell.src.Shared.Validators
         {
             if (string.IsNullOrWhiteSpace(password)) return "Senha inválida";
 
-            bool hasLetter = LetterRegex().IsMatch(password);
-            bool hasUpper = UppercaseRegex().IsMatch(password);
-            bool hasLower = LowercaseRegex().IsMatch(password);
-            bool hasDigit = DigitRegex().IsMatch(password);
+            bool hasLetter  = LetterRegex().IsMatch(password);
+            bool hasUpper   = UppercaseRegex().IsMatch(password);
+            bool hasLower   = LowercaseRegex().IsMatch(password);
+            bool hasDigit   = DigitRegex().IsMatch(password);
             bool hasSpecial = SpecialRegex().IsMatch(password);
-            int length = password.Length;
+            int  length     = password.Length;
 
-            if (length < 6 || !(hasLetter && hasDigit)) return "Ruim";
+            if (length < 4 || !hasLetter)                                                return "Muito fraca";
+            if (length < 6 || !(hasLetter && hasDigit))                                  return "Fraca";
+            if (length >= 6  && hasLetter && hasDigit && !hasSpecial)                    return "Média";
+            if (length >= 9  && hasUpper  && hasLower && hasDigit && hasSpecial)         return "Ótima";
+            if (length >= 8  && hasLetter && hasDigit && hasSpecial)                     return "Boa";
 
-            if (length >= 6 && hasLetter && hasDigit && !hasSpecial) return "Média";
-
-            if (length >= 8 && hasLetter && hasDigit && hasSpecial)
-            {
-                if (length >= 9 && hasUpper && hasLower) return "Ótima";
-                else return "Boa";
-            }
-
-            return "Show";
+            return "Média";
         }
     }
 }

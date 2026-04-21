@@ -49,7 +49,7 @@ namespace api_infor_cell.src.Services
             {
                 AccountReceivable accountReceivable = _mapper.Map<AccountReceivable>(request);
 
-                accountReceivable.Code = await countHandler.NextCountAsync("account-receivable");
+                accountReceivable.Code = await countHandler.NextCountAsync("account-receivable", request.CompanyId);
                 accountReceivable.Status = "Em Aberto";
                 accountReceivable.AmountPaid = 0;
 

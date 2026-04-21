@@ -8,11 +8,11 @@ namespace api_infor_cell.src.Handlers
     public class CountHandler(AppDbContext context, ILoggerService loggerService)
     {
 
-        public async Task<string> NextCountAsync(string collection)
+        public async Task<string> NextCountAsync(string collection, string company)
         {
             try
             {
-                Count? count = await context.Counts.Find(c => c.Collection == collection).FirstOrDefaultAsync();
+                Count? count = await context.Counts.Find(c => c.Collection == collection && c.CompanyId == company).FirstOrDefaultAsync();
                 string nextCode = "";
                 if (count == null)
                 {

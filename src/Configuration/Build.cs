@@ -72,6 +72,7 @@ namespace api_infor_cell.src.Configuration
             builder.Services.AddTransient<ITriggerRepository, TriggerRepository>();
             builder.Services.AddTransient<IAttachmentService, AttachmentService>();
             builder.Services.AddTransient<IAttachmentRepository, AttachmentRepository>();
+            builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
 
             // REALTIME
             builder.Services.AddTransient<INotificationService, NotificationService>();

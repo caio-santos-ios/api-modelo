@@ -49,7 +49,7 @@ namespace api_infor_cell.src.Services
             {
                 AccountPayable accountPayable = _mapper.Map<AccountPayable>(request);
 
-                accountPayable.Code = await countHandler.NextCountAsync("account-payable");
+                accountPayable.Code = await countHandler.NextCountAsync("account-payable", request.CompanyId);
                 accountPayable.Status = "Em Aberto";
                 accountPayable.AmountPaid = 0;
 

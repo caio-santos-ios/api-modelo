@@ -64,7 +64,7 @@ namespace api_infor_cell.src.Services
             if(situations.Data is null ||situations.Data.Count >= 4 && request.AppearsOnPanel) return new(null, 400, "É permitido somente 4 situações fazer parte do filtro.");
 
             Situation category = _mapper.Map<Situation>(request);
-            category.Code = await countHandler.NextCountAsync("situations");
+            category.Code = await countHandler.NextCountAsync("situations", request.CompanyId);
             ResponseApi<Situation?> response = await repository.CreateAsync(category);
 
             if(response.Data is null) return new(null, 400, "Falha ao criar Situação.");

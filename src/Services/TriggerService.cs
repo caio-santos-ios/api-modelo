@@ -72,7 +72,7 @@ namespace api_infor_cell.src.Services
                 if (request.IntervalValue <= 0) return new(null, 400, "O intervalo deve ser maior que zero.");
 
                 Trigger trigger = mapper.Map<Trigger>(request);
-                trigger.Code = await countHandler.NextCountAsync("triggers");
+                trigger.Code = await countHandler.NextCountAsync("triggers", request.CompanyId);
                 trigger.NextFireAt = CalculateNextFire(DateTime.UtcNow, request.IntervalValue, request.IntervalUnit);
 
                 ResponseApi<Trigger?> response = await repository.CreateAsync(trigger);

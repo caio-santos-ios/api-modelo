@@ -136,6 +136,8 @@ namespace api_infor_cell.src.Services
                 user.Data.UpdatedAt = DateTime.UtcNow;
                 user.Data.Email = request.Email;
                 user.Data.Name = request.Name;
+                user.Data.Master = true;
+                user.Data.Admin = true;
 
                 ResponseApi<User?> response = await userRepository.UpdateAsync(user.Data);
                 if(!response.IsSuccess) return new(null, 400, "Falha ao atualizar");

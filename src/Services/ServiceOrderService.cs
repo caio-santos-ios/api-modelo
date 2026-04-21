@@ -61,7 +61,7 @@ namespace api_infor_cell.src.Services
             {
                 ServiceOrder serviceOrder = _mapper.Map<ServiceOrder>(request);
                 serviceOrder.Status = "Em Aberto";
-                serviceOrder.Code = await countHandler.NextCountAsync("service_orders");
+                serviceOrder.Code = await countHandler.NextCountAsync("service_orders", request.CompanyId);
 
                 ResponseApi<ServiceOrder?> response = await repository.CreateAsync(serviceOrder);
                 if (response.Data is null) return new(null, 400, "Falha ao criar Ordem de Serviço.");

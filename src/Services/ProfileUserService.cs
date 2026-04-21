@@ -65,7 +65,7 @@ namespace api_infor_cell.src.Services
             {
                 ProfileUser profileUser = _mapper.Map<ProfileUser>(request);
 
-                profileUser.Code = await countHandler.NextCountAsync("profile_user");
+                profileUser.Code = await countHandler.NextCountAsync("profile_user", request.CompanyId);
                 ResponseApi<ProfileUser?> response = await repository.CreateAsync(profileUser);
 
                 if(response.Data is null) return new(null, 400, "Falha ao criar Perfil de Usuário.");

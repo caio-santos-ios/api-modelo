@@ -29,7 +29,7 @@ namespace api_infor_cell.src.Repository
                     }),
                     new("$project", new BsonDocument
                     {
-                        {"_id", 0}, 
+                        {"_id", 0},
                     }),
                     new("$sort", pagination.PipelineSort),
                 };
@@ -62,16 +62,16 @@ namespace api_infor_cell.src.Repository
                     MongoUtil.Lookup("accounts_receivable", ["$_id"], ["$customerId"], "_accountsReceivable", [["deleted", false]], 1),
                     MongoUtil.Lookup("service_orders", ["$_id"], ["$customerId"], "_serviceOrders", [["deleted", false]], 1),
                     MongoUtil.Lookup("situations", ["$plan", "$company", "$store"], ["$plan", "$company", "$store"], "_situations", [["deleted", false]]),
-                    
+
                     new("$project", new BsonDocument
                     {
-                        {"_id", 0}, 
+                        {"_id", 0},
                         {"tradeName", 1},
-                        {"salesOrder", new BsonDocument("$map", new BsonDocument 
+                        {"salesOrder", new BsonDocument("$map", new BsonDocument
                             {
                                 {"input", "$_salesOrder"},
                                 {"as", "s"},
-                                {"in", new BsonDocument 
+                                {"in", new BsonDocument
                                     {
                                         {"id", new BsonDocument("$toString", "$$s._id")},
                                         {"code", "$$s.code"},
@@ -83,11 +83,11 @@ namespace api_infor_cell.src.Repository
                                 }
                             })
                         },
-                        {"accountsReceivable", new BsonDocument("$map", new BsonDocument 
+                        {"accountsReceivable", new BsonDocument("$map", new BsonDocument
                             {
                                 {"input", "$_accountsReceivable"},
                                 {"as", "s"},
-                                {"in", new BsonDocument 
+                                {"in", new BsonDocument
                                     {
                                         {"id", new BsonDocument("$toString", "$$s._id")},
                                         {"code", "$$s.code"},
@@ -101,11 +101,11 @@ namespace api_infor_cell.src.Repository
                                 }
                             })
                         },
-                        {"serviceOrders", new BsonDocument("$map", new BsonDocument 
+                        {"serviceOrders", new BsonDocument("$map", new BsonDocument
                             {
                                 {"input", "$_serviceOrders"},
                                 {"as", "s"},
-                                {"in", new BsonDocument 
+                                {"in", new BsonDocument
                                     {
                                         {"id", new BsonDocument("$toString", "$$s._id")},
                                         {"code", "$$s.code"},
@@ -117,11 +117,11 @@ namespace api_infor_cell.src.Repository
                                 }
                             })
                         },
-                        {"situations", new BsonDocument("$map", new BsonDocument 
+                        {"situations", new BsonDocument("$map", new BsonDocument
                             {
                                 {"input", "$_situations"},
                                 {"as", "s"},
-                                {"in", new BsonDocument 
+                                {"in", new BsonDocument
                                     {
                                         {"id", new BsonDocument("$toString", "$$s._id")},
                                         {"code", "$$s.code"},
@@ -144,7 +144,7 @@ namespace api_infor_cell.src.Repository
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
-        
+
         public async Task<ResponseApi<dynamic?>> GetByIdAggregateAsync(string id)
         {
             try
@@ -174,7 +174,7 @@ namespace api_infor_cell.src.Repository
                         {"parent", MongoUtil.First("_address.parent") },
                         {"parentId", MongoUtil.First("_address.parentId") },
                     }),
-                    
+
                     new("$addFields", new BsonDocument
                     {
                         {"address", new BsonDocument
@@ -209,7 +209,7 @@ namespace api_infor_cell.src.Repository
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
-        
+
         public async Task<ResponseApi<Customer?>> GetByIdAsync(string id)
         {
             try
@@ -228,14 +228,15 @@ namespace api_infor_cell.src.Repository
             try
             {
                 Customer? customer = new();
-                if(!string.IsNullOrEmpty(id))
+                if (!string.IsNullOrEmpty(id))
                 {
                     customer = await context.Customers.Find(x => x.Email == email && x.Id != id && !x.Deleted).FirstOrDefaultAsync();
                 }
                 else
                 {
                     customer = await context.Customers.Find(x => x.Email == email && !x.Deleted).FirstOrDefaultAsync();
-                };
+                }
+                ;
                 return new(customer);
             }
             catch
@@ -243,20 +244,21 @@ namespace api_infor_cell.src.Repository
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
-        
+
         public async Task<ResponseApi<Customer?>> GetByDocumentAsync(string document, string id)
         {
             try
             {
                 Customer? customer = new();
-                if(!string.IsNullOrEmpty(id))
+                if (!string.IsNullOrEmpty(id))
                 {
                     customer = await context.Customers.Find(x => x.Document == document && x.Id != id && !x.Deleted).FirstOrDefaultAsync();
                 }
                 else
                 {
                     customer = await context.Customers.Find(x => x.Document == document && !x.Deleted).FirstOrDefaultAsync();
-                };
+                }
+                ;
                 return new(customer);
             }
             catch
@@ -264,7 +266,7 @@ namespace api_infor_cell.src.Repository
                 return new(null, 500, "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
             }
         }
-        
+
         public async Task<int> GetCountDocumentsAsync(PaginationUtil<Customer> pagination)
         {
             List<BsonDocument> pipeline = new()
@@ -286,7 +288,7 @@ namespace api_infor_cell.src.Repository
             return results.Select(doc => BsonSerializer.Deserialize<dynamic>(doc)).Count();
         }
         #endregion
-        
+
         #region CREATE
         public async Task<ResponseApi<Customer?>> CreateAsync(Customer customer)
         {
@@ -302,7 +304,7 @@ namespace api_infor_cell.src.Repository
             }
         }
         #endregion
-        
+
         #region UPDATE
         public async Task<ResponseApi<Customer?>> UpdateAsync(Customer customer)
         {
@@ -318,14 +320,14 @@ namespace api_infor_cell.src.Repository
             }
         }
         #endregion
-        
+
         #region DELETE
         public async Task<ResponseApi<Customer>> DeleteAsync(string id)
         {
             try
             {
                 Customer? customer = await context.Customers.Find(x => x.Id == id && !x.Deleted).FirstOrDefaultAsync();
-                if(customer is null) return new(null, 404, "Clientes não encontrado");
+                if (customer is null) return new(null, 404, "Clientes não encontrado");
                 customer.Deleted = true;
                 customer.DeletedAt = DateTime.UtcNow;
 

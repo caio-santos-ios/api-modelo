@@ -13,7 +13,7 @@ namespace api_infor_cell.src.Services
         public async Task<ResponseApi<PaginationApi<List<dynamic>>>> GetAllAsync(GetAllDTO request)
         {
             try
-            {
+            {                
                 PaginationUtil<Customer> pagination = new(request.QueryParams);
                 ResponseApi<List<dynamic>> customers = await repository.GetAllAsync(pagination);
                 int count = await repository.GetCountDocumentsAsync(pagination);

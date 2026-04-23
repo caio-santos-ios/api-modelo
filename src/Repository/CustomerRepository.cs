@@ -20,9 +20,7 @@ namespace api_infor_cell.src.Repository
                 List<BsonDocument> pipeline = new()
                 {
                     new("$match", pagination.PipelineFilter),
-                    new("$sort", pagination.PipelineSort),
-                    new("$skip", pagination.Skip),
-                    new("$limit", pagination.Limit),
+                    // new("$sort", pagination.PipelineSort),
                     new("$addFields", new BsonDocument
                     {
                         {"id", new BsonDocument("$toString", "$_id")},
@@ -31,6 +29,8 @@ namespace api_infor_cell.src.Repository
                     {
                         {"_id", 0},
                     }),
+                    new("$skip", pagination.Skip),
+                    new("$limit", pagination.Limit),
                     new("$sort", pagination.PipelineSort),
                 };
 

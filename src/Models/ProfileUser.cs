@@ -21,5 +21,14 @@ namespace api_infor_cell.src.Models
         
         [BsonElement("modules")]
         public List<Module> Modules {get;set;} = [];
+        
+        [BsonElement("plan")]
+        public string Plan {get;set;} = string.Empty;
+        
+        [BsonElement("company")]
+        public string Company {get;set;} = string.Empty;
+        
+        [BsonElement("store")]
+        public string Store {get;set;} = string.Empty;
     }
 }

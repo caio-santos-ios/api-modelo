@@ -5,12 +5,14 @@ services:
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-admin123}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-Ca98244696}
       MONGO_INITDB_DATABASE: ${DATABASE_NAME:-modelo}
     volumes:
-      - mongo_data:/data/db
+      - mongo_modelo_data:/data/db
     networks:
       - modelo_network
+    ports:
+      - "127.0.0.1:27020:27017"
 
   api:
     build:
@@ -25,13 +27,13 @@ services:
     env_file:
       - .env
     volumes:
-      - api_uploads:/app/wwwroot/uploads
+      - api_modelo_uploads:/app/wwwroot/uploads
     networks:
       - modelo_network
 
 volumes:
-  mongo_data:
-  api_uploads:
+  mongo_modelo_data:
+  api_modelo_uploads:
 
 networks:
   modelo_network:

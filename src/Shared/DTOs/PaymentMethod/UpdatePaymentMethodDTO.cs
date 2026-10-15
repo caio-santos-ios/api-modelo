@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using api_infor_cell.src.Models;
+using api_modelo.src.Models;
 
-namespace api_infor_cell.src.Shared.DTOs
+namespace api_modelo.src.Shared.DTOs
 {
     public class UpdatePaymentMethodDTO : RequestDTO
     {

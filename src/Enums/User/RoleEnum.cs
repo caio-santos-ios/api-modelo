@@ -1,4 +1,4 @@
-namespace api_infor_cell.src.Enums.User
+namespace api_modelo.src.Enums.User
 {
     public enum RoleEnum
     {

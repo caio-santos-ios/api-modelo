@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using api_infor_cell.src.Interfaces;
+using api_modelo.src.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api_infor_cell.src.Controllers
+namespace api_modelo.src.Controllers
 {
     [Route("api/chat")]
     [ApiController]

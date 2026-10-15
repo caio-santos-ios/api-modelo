@@ -1,8 +1,8 @@
-using api_infor_cell.src.Configuration;
-using api_infor_cell.src.Models;
+using api_modelo.src.Configuration;
+using api_modelo.src.Models;
 using MongoDB.Driver;
 
-namespace api_infor_cell.src.Shared.Templates
+namespace api_modelo.src.Shared.Templates
 {
     public class MailTemplate(AppDbContext context)
     {

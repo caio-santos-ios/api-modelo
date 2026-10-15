@@ -1,7 +1,7 @@
-using api_infor_cell.src.Models;
+using api_modelo.src.Models;
 using Newtonsoft.Json;
 
-namespace api_infor_cell.src.Shared.Utils
+namespace api_modelo.src.Shared.Utils
 {
     public static class Util
     {

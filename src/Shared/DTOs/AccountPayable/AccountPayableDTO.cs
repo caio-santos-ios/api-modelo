@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace api_infor_cell.src.Shared.DTOs
+namespace api_modelo.src.Shared.DTOs
 {
     public class CreateAccountPayableDTO : RequestDTO
     {

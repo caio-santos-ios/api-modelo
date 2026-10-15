@@ -1,6 +1,6 @@
 using System.Text;
 using System.Text.Json;
-using api_infor_cell.src.Models.Base;
+using api_modelo.src.Models.Base;
 using Microsoft.Extensions.Primitives;
 
 public class CompanyQueryMiddleware(RequestDelegate _next)

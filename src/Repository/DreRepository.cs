@@ -1,10 +1,10 @@
-using api_infor_cell.src.Configuration;
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Models.Base;
+using api_modelo.src.Configuration;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Models.Base;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace api_infor_cell.src.Repository
+namespace api_modelo.src.Repository
 {
     public record DreGrupoDef(string Key, string Label, bool IsParent, string? ParentKey = null);
 
@@ -62,11 +62,11 @@ namespace api_infor_cell.src.Repository
             {
                 string dateField = regime == "caixa" ? "paidAt" : "dueDate";
 
-                var accountsFilter = Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.And(
-                    Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.Eq("deleted", false),
-                    Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.Ne("groupDRE", ""),
-                    Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.Ne("groupDRE", BsonNull.Value),
-                    Builders<global::api_infor_cell.src.Models.ChartOfAccounts>.Filter.Ne("groupDRE", "none")
+                var accountsFilter = Builders<global::api_modelo.src.Models.ChartOfAccounts>.Filter.And(
+                    Builders<global::api_modelo.src.Models.ChartOfAccounts>.Filter.Eq("deleted", false),
+                    Builders<global::api_modelo.src.Models.ChartOfAccounts>.Filter.Ne("groupDRE", ""),
+                    Builders<global::api_modelo.src.Models.ChartOfAccounts>.Filter.Ne("groupDRE", BsonNull.Value),
+                    Builders<global::api_modelo.src.Models.ChartOfAccounts>.Filter.Ne("groupDRE", "none")
                 );
 
                 var accounts = await context.ChartOfAccounts

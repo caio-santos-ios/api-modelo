@@ -1,19 +1,19 @@
-using api_infor_cell.src.Models;
+using api_modelo.src.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using api_infor_cell.src.Models.Base;
-using api_infor_cell.src.Responses;
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Shared.DTOs;
-using api_infor_cell.src.Handlers;
-using api_infor_cell.src.Shared.Templates;
-using api_infor_cell.src.Shared.Validators;
-using api_infor_cell.src.Shared.Utils;
+using api_modelo.src.Models.Base;
+using api_modelo.src.Responses;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Shared.DTOs;
+using api_modelo.src.Handlers;
+using api_modelo.src.Shared.Templates;
+using api_modelo.src.Shared.Validators;
+using api_modelo.src.Shared.Utils;
 using System.Text.Json;
 
-namespace api_infor_cell.src.Services
+namespace api_modelo.src.Services
 {
     public class AuthService(IUserRepository userRepository, ICompanyRepository companyRepository, MailHandler mailHandler, MailTemplate mailTemplate) : IAuthService
     {

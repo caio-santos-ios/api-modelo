@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace api_infor_cell.src.Controllers
+namespace api_modelo.src.Controllers
 {
     [Route("api/check")]
     [ApiController]

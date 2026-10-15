@@ -1,10 +1,10 @@
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Models;
-using api_infor_cell.src.Models.Base;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Models;
+using api_modelo.src.Models.Base;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api_infor_cell.src.Controllers
+namespace api_modelo.src.Controllers
 {
     [Route("api/chart-of-accounts")]
     [ApiController]

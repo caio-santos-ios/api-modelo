@@ -1,10 +1,10 @@
 using System.Security.Claims;
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Shared.DTOs;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace api_infor_cell.src.Hubs
+namespace api_modelo.src.Hubs
 {
     [Authorize]
     public class NotificationHub(INotificationService notificationService) : Hub

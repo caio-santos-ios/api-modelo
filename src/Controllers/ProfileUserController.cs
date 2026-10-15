@@ -1,12 +1,12 @@
 using System.Security.Claims;
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Models;
-using api_infor_cell.src.Models.Base;
-using api_infor_cell.src.Shared.DTOs;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Models;
+using api_modelo.src.Models.Base;
+using api_modelo.src.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api_infor_cell.src.Controllers
+namespace api_modelo.src.Controllers
 {
     [Route("api/profile-users")]
     [ApiController]

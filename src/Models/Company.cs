@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace api_infor_cell.src.Models
+namespace api_modelo.src.Models
 {
     public class Company
     {

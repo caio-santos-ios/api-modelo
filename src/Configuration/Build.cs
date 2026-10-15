@@ -1,13 +1,13 @@
-using api_infor_cell.src.Filters;
-using api_infor_cell.src.Handlers;
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Repository;
-using api_infor_cell.src.Services;
-using api_infor_cell.src.Shared.Templates;
-using api_infor_cell.src.Workers;
+using api_modelo.src.Filters;
+using api_modelo.src.Handlers;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Repository;
+using api_modelo.src.Services;
+using api_modelo.src.Shared.Templates;
+using api_modelo.src.Workers;
 using CloudinaryDotNet;
 
-namespace api_infor_cell.src.Configuration
+namespace api_modelo.src.Configuration
 {
     public static class Build
     {

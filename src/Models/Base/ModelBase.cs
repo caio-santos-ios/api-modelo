@@ -1,6 +1,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace api_infor_cell.src.Models.Base
+namespace api_modelo.src.Models.Base
 {
     public class ModelBase
     {

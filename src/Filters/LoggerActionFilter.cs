@@ -1,10 +1,10 @@
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Shared.DTOs;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Shared.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 
-namespace api_infor_cell.src.Filters
+namespace api_modelo.src.Filters
 {
     public class LoggerActionFilter(ILoggerService loggerService) : IAsyncActionFilter
     {

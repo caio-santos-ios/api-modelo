@@ -1,6 +1,6 @@
-using api_infor_cell.src.Models;
+using api_modelo.src.Models;
 
-namespace api_infor_cell.src.Responses
+namespace api_modelo.src.Responses
 {
     public class AuthResponse
     {

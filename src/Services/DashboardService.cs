@@ -1,7 +1,7 @@
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Models.Base;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Models.Base;
 
-namespace api_infor_cell.src.Services
+namespace api_modelo.src.Services
 {
     public class DashboardService(IDashboardRepository repository) : IDashboardService
     {

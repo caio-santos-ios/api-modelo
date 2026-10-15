@@ -1,7 +1,7 @@
-using api_infor_cell.src.Models;
+using api_modelo.src.Models;
 using MongoDB.Driver;
 
-namespace api_infor_cell.src.Configuration
+namespace api_modelo.src.Configuration
 {
     public class AppDbContext
     {

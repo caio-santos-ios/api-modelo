@@ -3,7 +3,7 @@ using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
 using System.Text.RegularExpressions;
 
-namespace api_infor_cell.src.Handlers
+namespace api_modelo.src.Handlers
 {
     public class SmsHandler
     {

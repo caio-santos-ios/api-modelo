@@ -1,4 +1,4 @@
-namespace api_infor_cell.src.Responses
+namespace api_modelo.src.Responses
 {
     public class DreResponse
     {

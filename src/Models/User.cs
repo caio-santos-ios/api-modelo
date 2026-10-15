@@ -1,9 +1,9 @@
-using api_infor_cell.src.Models.Base;
+using api_modelo.src.Models.Base;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using api_infor_cell.src.Enums.User;
+using api_modelo.src.Enums.User;
 
-namespace api_infor_cell.src.Models
+namespace api_modelo.src.Models
 {
     public class User : ModelBase
     {

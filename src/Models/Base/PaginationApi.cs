@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace api_infor_cell.src.Models.Base
+namespace api_modelo.src.Models.Base
 {
     public class PaginationApi<TData> : ResponseApi<TData>
     {

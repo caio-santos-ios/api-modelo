@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace api_infor_cell.src.Shared.Validators
+namespace api_modelo.src.Shared.Validators
 {
 
     public static partial class Validator

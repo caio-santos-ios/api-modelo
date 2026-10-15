@@ -1,12 +1,12 @@
-using api_infor_cell.src.Configuration;
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Models;
-using api_infor_cell.src.Models.Base;
+using api_modelo.src.Configuration;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Models;
+using api_modelo.src.Models.Base;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace api_infor_cell.src.Repository
+namespace api_modelo.src.Repository
 {
     public class ChatRepository(AppDbContext context) : IChatRepository
     {

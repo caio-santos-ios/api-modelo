@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace api_infor_cell.src.Shared.Utils
+namespace api_modelo.src.Shared.Utils
 {
     public class PaginationUtil<T>
     {

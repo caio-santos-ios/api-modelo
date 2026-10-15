@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using api_infor_cell.src.Configuration;
-using api_infor_cell.src.Filters;
-using api_infor_cell.src.Hubs;
+using api_modelo.src.Configuration;
+using api_modelo.src.Filters;
+using api_modelo.src.Hubs;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;

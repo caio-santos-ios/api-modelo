@@ -1,9 +1,9 @@
-using api_infor_cell.src.Interfaces;
+using api_modelo.src.Interfaces;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using SixLabors.ImageSharp;
 
-namespace api_infor_cell.src.Handlers
+namespace api_modelo.src.Handlers
 {
     public class UploadHandler(Cloudinary cloudinary, ILoggerService loggerService)
     {

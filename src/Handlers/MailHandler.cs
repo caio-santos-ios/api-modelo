@@ -1,9 +1,9 @@
-using api_infor_cell.src.Interfaces;
+using api_modelo.src.Interfaces;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
-namespace api_infor_cell.src.Handlers
+namespace api_modelo.src.Handlers
 {
     public class MailHandler(ILoggerService loggerService)
     {

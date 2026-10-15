@@ -1,9 +1,9 @@
-using api_infor_cell.src.Configuration;
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Models;
+using api_modelo.src.Configuration;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Models;
 using MongoDB.Driver;
 
-namespace api_infor_cell.src.Handlers
+namespace api_modelo.src.Handlers
 {
     public class CountHandler(AppDbContext context, ILoggerService loggerService)
     {

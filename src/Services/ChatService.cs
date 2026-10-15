@@ -1,9 +1,9 @@
-using api_infor_cell.src.Interfaces;
-using api_infor_cell.src.Models;
-using api_infor_cell.src.Models.Base;
-using api_infor_cell.src.Shared.DTOs;
+using api_modelo.src.Interfaces;
+using api_modelo.src.Models;
+using api_modelo.src.Models.Base;
+using api_modelo.src.Shared.DTOs;
 
-namespace api_infor_cell.src.Services
+namespace api_modelo.src.Services
 {
     public class ChatService(IChatRepository repository) : IChatService
     {

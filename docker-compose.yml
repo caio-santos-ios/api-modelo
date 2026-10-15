@@ -1,0 +1,38 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb-modelo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-admin123}
+      MONGO_INITDB_DATABASE: ${DATABASE_NAME:-modelo}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - modelo_network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-modelo
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    ports:
+      - "5097:5097"
+    env_file:
+      - .env
+    volumes:
+      - api_uploads:/app/wwwroot/uploads
+    networks:
+      - modelo_network
+
+volumes:
+  mongo_data:
+  api_uploads:
+
+networks:
+  modelo_network:
+    driver: bridge

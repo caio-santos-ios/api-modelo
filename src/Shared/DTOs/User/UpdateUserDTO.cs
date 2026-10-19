@@ -15,8 +15,6 @@ namespace api_modelo.src.Shared.DTOs
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "O Perfil do Usuário é obrigatório.")]
-        [Display(Order = 3)]
         public string ProfileUserId { get; set; } = string.Empty;
     
         public bool Admin { get; set; } = false;

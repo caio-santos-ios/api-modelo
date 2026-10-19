@@ -7,7 +7,7 @@ namespace api_modelo.src.Handlers
 {
     public class MailHandler(ILoggerService loggerService)
     {
-        private readonly string EmailFrom = Environment.GetEnvironmentVariable("EMAIL_FROM") ?? "";
+        private readonly string EmailFrom = Environment.GetEnvironmentVariable("RESEND_EMAIL") ?? "";
         private readonly string ResendApiKey = Environment.GetEnvironmentVariable("RESEND_API_KEY") ?? "";
 
         public async Task SendMailAsync(string recipient, string subject, string body)
